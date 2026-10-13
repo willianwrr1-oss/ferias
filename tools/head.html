@@ -173,6 +173,32 @@ textarea.field{min-height:84px;resize:vertical}
 .card{box-shadow:var(--shadow)}
 .card .card-head{display:flex}
 
+/* campo de data + calendário de escolha */
+.df{position:relative;display:block}
+.df .field{padding-right:52px}
+.df-btn{position:absolute;right:3px;top:3px;width:42px;height:40px;border:0;border-radius:10px;background:transparent;color:var(--brand);display:grid;place-items:center}
+.df-btn:active{background:var(--brand-soft)}
+.pk-wrap{position:absolute;inset:0;z-index:8;display:flex;align-items:center;justify-content:center;padding:16px}
+.pk-wrap[hidden]{display:none}
+.pk-back{position:absolute;inset:0;background:rgba(0,0,0,.45)}
+.pk{position:relative;width:100%;max-width:360px;background:var(--surface);color:var(--ink);border-radius:20px;box-shadow:0 12px 40px rgba(0,0,0,.35);padding:8px 10px 10px}
+.pk-head{display:flex;align-items:center;gap:4px}
+.pk-title{flex:1;display:flex;justify-content:center;gap:4px;min-width:0}
+.pk-t{border:0;background:transparent;color:var(--ink);font-family:var(--font-display);font-size:18px;font-weight:700;padding:8px 10px;min-height:44px;border-radius:10px;text-transform:capitalize}
+button.pk-t{background:var(--brand-soft);color:var(--brand)}
+span.pk-t{display:flex;align-items:center}
+.pk-t i{font-style:normal;font-size:12px}
+.pk-dow,.pk-days{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.pk-dow span{text-align:center;font-size:12.5px;font-weight:700;color:var(--muted);padding:6px 0}
+.pk-d{height:42px;border:0;background:transparent;border-radius:50%;font-size:16px;color:var(--ink);font-variant-numeric:tabular-nums}
+.pk-d.is-today{outline:2px solid var(--brand);outline-offset:-2px}
+.pk-d.is-sel{background:var(--brand);color:var(--brand-ink);font-weight:700}
+.pk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:8px 0}
+.pk-c{height:52px;border:1px solid var(--line);background:transparent;border-radius:12px;font-size:16px;color:var(--ink);text-transform:capitalize}
+.pk-c.is-sel{background:var(--brand);color:var(--brand-ink);border-color:var(--brand);font-weight:700}
+.pk-foot{display:flex;justify-content:space-between;gap:8px;margin-top:6px}
+.pk-foot .btn{flex:1;min-height:44px}
+
 /* exportação */
 .paper{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
 .paper-head{background:var(--brand);color:var(--brand-ink);padding:12px 14px;border-bottom:4px solid var(--sun);display:flex;flex-direction:column;gap:2px}

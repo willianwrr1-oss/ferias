@@ -1,6 +1,6 @@
 {
   "name": "gestao-ferias",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": true,
   "description": "Cadastro e gestão de férias de colaboradores (Android 13+)",
   "dependencies": {

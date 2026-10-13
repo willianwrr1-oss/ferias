@@ -173,6 +173,32 @@ textarea.field{min-height:84px;resize:vertical}
 .card{box-shadow:var(--shadow)}
 .card .card-head{display:flex}
 
+/* campo de data + calendário de escolha */
+.df{position:relative;display:block}
+.df .field{padding-right:52px}
+.df-btn{position:absolute;right:3px;top:3px;width:42px;height:40px;border:0;border-radius:10px;background:transparent;color:var(--brand);display:grid;place-items:center}
+.df-btn:active{background:var(--brand-soft)}
+.pk-wrap{position:absolute;inset:0;z-index:8;display:flex;align-items:center;justify-content:center;padding:16px}
+.pk-wrap[hidden]{display:none}
+.pk-back{position:absolute;inset:0;background:rgba(0,0,0,.45)}
+.pk{position:relative;width:100%;max-width:360px;background:var(--surface);color:var(--ink);border-radius:20px;box-shadow:0 12px 40px rgba(0,0,0,.35);padding:8px 10px 10px}
+.pk-head{display:flex;align-items:center;gap:4px}
+.pk-title{flex:1;display:flex;justify-content:center;gap:4px;min-width:0}
+.pk-t{border:0;background:transparent;color:var(--ink);font-family:var(--font-display);font-size:18px;font-weight:700;padding:8px 10px;min-height:44px;border-radius:10px;text-transform:capitalize}
+button.pk-t{background:var(--brand-soft);color:var(--brand)}
+span.pk-t{display:flex;align-items:center}
+.pk-t i{font-style:normal;font-size:12px}
+.pk-dow,.pk-days{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.pk-dow span{text-align:center;font-size:12.5px;font-weight:700;color:var(--muted);padding:6px 0}
+.pk-d{height:42px;border:0;background:transparent;border-radius:50%;font-size:16px;color:var(--ink);font-variant-numeric:tabular-nums}
+.pk-d.is-today{outline:2px solid var(--brand);outline-offset:-2px}
+.pk-d.is-sel{background:var(--brand);color:var(--brand-ink);font-weight:700}
+.pk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:8px 0}
+.pk-c{height:52px;border:1px solid var(--line);background:transparent;border-radius:12px;font-size:16px;color:var(--ink);text-transform:capitalize}
+.pk-c.is-sel{background:var(--brand);color:var(--brand-ink);border-color:var(--brand);font-weight:700}
+.pk-foot{display:flex;justify-content:space-between;gap:8px;margin-top:6px}
+.pk-foot .btn{flex:1;min-height:44px}
+
 /* exportação */
 .paper{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
 .paper-head{background:var(--brand);color:var(--brand-ink);padding:12px 14px;border-bottom:4px solid var(--sun);display:flex;flex-direction:column;gap:2px}
@@ -295,11 +321,11 @@ textarea.field{min-height:84px;resize:vertical}
       </div>
       <div class="row2">
         <label class="lb" for="f-ini">Início
-          <input type="date" class="field" id="f-ini">
+          <span class="df"><input class="field" id="f-ini" inputmode="numeric" placeholder="dd/mm/aaaa" maxlength="10" autocomplete="off"><button type="button" class="df-btn" data-pick="f-ini" aria-label="Abrir calendário do início"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></button></span>
           <span class="err" id="e-ini"></span>
         </label>
         <label class="lb" for="f-fim">Fim
-          <input type="date" class="field" id="f-fim">
+          <span class="df"><input class="field" id="f-fim" inputmode="numeric" placeholder="dd/mm/aaaa" maxlength="10" autocomplete="off"><button type="button" class="df-btn" data-pick="f-fim" aria-label="Abrir calendário do fim"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></button></span>
           <span class="err" id="e-fim"></span>
         </label>
       </div>
@@ -320,6 +346,21 @@ textarea.field{min-height:84px;resize:vertical}
       </div>
     </form>
   </div>
+  <div class="pk-wrap" id="pk" hidden>
+    <div class="pk-back" data-pk-close="1"></div>
+    <div class="pk" role="dialog" aria-modal="true" aria-label="Escolher data">
+      <div class="pk-head">
+        <button type="button" class="iconbtn" id="pk-prev" aria-label="Anterior">&#8249;</button>
+        <div class="pk-title" id="pk-title"></div>
+        <button type="button" class="iconbtn" id="pk-next" aria-label="Próximo">&#8250;</button>
+      </div>
+      <div class="pk-body" id="pk-body"></div>
+      <div class="pk-foot">
+        <button type="button" class="btn btn-ghost" id="pk-today">Hoje</button>
+        <button type="button" class="btn btn-ghost" data-pk-close="1">Cancelar</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -332,9 +373,10 @@ textarea.field{min-height:84px;resize:vertical}
   var DIAS = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
   var DOW = ['D','S','T','Q','Q','S','S'];
   var TITULOS = { resumo: 'Resumo', cad: 'Cadastros', cal: 'Calendário', exp: 'Exportar', opt: 'Opções' };
-  var VERSION = '1.1.0', BUILD_DATE = '13/10/2026';
+  var VERSION = '1.1.1', BUILD_DATE = '13/10/2026';
   var DEV = { nome: 'Willian', contato: 'willian.wrr1@gmail.com' };
   var NOVIDADES = [
+    'Datas: digite direto no campo (dd/mm/aaaa) ou abra o calendário e toque no mês ou no ano para pular rápido',
     'Backup automático em uma pasta do Android, com frequência à escolha',
     'Importação do banco de dados (substituir ou mesclar)',
     'Relatório em PDF e coluna de semanas no calendário'
@@ -598,8 +640,8 @@ textarea.field{min-height:84px;resize:vertical}
     return '<section class="screen">' +
       '<div class="lb" role="radiogroup" aria-label="O que exportar">O que exportar<div class="seg">' + radio('todos', 'Completo') + radio('periodo', 'Período específico') + '</div></div>' +
       '<div class="row2" id="xper"' + (exp.escopo === 'periodo' ? '' : ' hidden') + '>' +
-      '<label class="lb" for="xde">De<input type="date" class="field" id="xde" value="' + exp.de + '"></label>' +
-      '<label class="lb" for="xate">Até<input type="date" class="field" id="xate" value="' + exp.ate + '"></label></div>' +
+      '<label class="lb" for="xde">De' + dateField('xde', exp.de) + '</label>' +
+      '<label class="lb" for="xate">Até' + dateField('xate', exp.ate) + '</label></div>' +
       '<label class="lb" for="xsetor">Setor<select class="field" id="xsetor">' + so + '</select></label>' +
       '<div id="expres" class="screen"></div></section>';
   }
@@ -1033,11 +1075,109 @@ textarea.field{min-height:84px;resize:vertical}
 
   function go(t) { tab = t; renderScreen(); $('#main').scrollTop = 0; if (t === 'opt') refreshBk(); }
 
+  /* ---------- campo de data (digitar ou escolher no calendário) ---------- */
+  var CAL_ICON = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>';
+  function dateField(id, value) {
+    return '<span class="df"><input class="field" id="' + id + '" inputmode="numeric" placeholder="dd/mm/aaaa" maxlength="10" autocomplete="off" value="' + (value ? fmt(value) : '') + '">' +
+      '<button type="button" class="df-btn" data-pick="' + id + '" aria-label="Abrir calendário">' + CAL_ICON + '</button></span>';
+  }
+  function maskDate(v) {
+    var d = String(v).replace(/\D/g, '').slice(0, 8), o = d.slice(0, 2);
+    if (d.length > 2) o += '/' + d.slice(2, 4);
+    if (d.length > 4) o += '/' + d.slice(4);
+    return o;
+  }
+  function parseBR(t) {
+    var m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(String(t).trim());
+    if (!m) return '';
+    var d = +m[1], mo = +m[2], y = +m[3];
+    if (y < 1990 || y > 2100 || mo < 1 || mo > 12 || d < 1) return '';
+    if (d > new Date(Date.UTC(y, mo, 0)).getUTCDate()) return '';
+    return iso(y, mo - 1, d);
+  }
+  function getDate(id) { return parseBR($('#' + id).value); }
+  function setDate(id, isoStr) { $('#' + id).value = isoStr ? fmt(isoStr) : ''; }
+
+  var pk = { id: null, mode: 'day', y: 0, m: 0, base: 0, sel: '' };
+  function pkOpen(id) {
+    var cur = getDate(id), ref = cur;
+    if (!ref && id === 'f-fim') ref = getDate('f-ini');
+    if (!ref && id === 'xate') ref = getDate('xde');
+    var p = parts(ref || todayISO());
+    pk = { id: id, mode: 'day', y: p[0], m: p[1] - 1, base: 0, sel: cur };
+    pkRender();
+    $('#pk').hidden = false;
+    try { $('#pk-title').querySelector('button').focus(); } catch (e) {}
+  }
+  function pkClose() { $('#pk').hidden = true; pk.id = null; }
+  function pkPick(isoStr) {
+    var el = $('#' + pk.id);
+    el.value = fmt(isoStr);
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    pkClose();
+  }
+  function pkRender() {
+    var title = $('#pk-title'), body = $('#pk-body'), h = '';
+    if (pk.mode === 'day') {
+      title.innerHTML = '<button type="button" class="pk-t" data-pk-mode="month">' + MESES[pk.m] + ' <i>&#9662;</i></button><button type="button" class="pk-t" data-pk-mode="year">' + pk.y + ' <i>&#9662;</i></button>';
+      h = '<div class="pk-dow">' + DOW.map(function (d) { return '<span>' + d + '</span>'; }).join('') + '</div><div class="pk-days">';
+      var first = new Date(Date.UTC(pk.y, pk.m, 1)).getUTCDay(), n = new Date(Date.UTC(pk.y, pk.m + 1, 0)).getUTCDate(), hoje = todayISO();
+      for (var i = 0; i < first; i++) h += '<span></span>';
+      for (var d = 1; d <= n; d++) {
+        var s = iso(pk.y, pk.m, d);
+        h += '<button type="button" class="pk-d' + (s === hoje ? ' is-today' : '') + (s === pk.sel ? ' is-sel' : '') + '" data-pk-day="' + s + '">' + d + '</button>';
+      }
+      h += '</div>';
+    } else if (pk.mode === 'month') {
+      title.innerHTML = '<button type="button" class="pk-t" data-pk-mode="year">' + pk.y + ' <i>&#9662;</i></button>';
+      h = '<div class="pk-grid">' + MESES.map(function (nm, i) {
+        return '<button type="button" class="pk-c' + (i === pk.m ? ' is-sel' : '') + '" data-pk-m="' + i + '">' + nm.slice(0, 3) + '</button>';
+      }).join('') + '</div>';
+    } else {
+      var ini = pk.base;
+      title.innerHTML = '<span class="pk-t">' + ini + ' – ' + (ini + 11) + '</span>';
+      h = '<div class="pk-grid">';
+      for (var y = ini; y < ini + 12; y++) h += '<button type="button" class="pk-c' + (y === pk.y ? ' is-sel' : '') + '" data-pk-y="' + y + '">' + y + '</button>';
+      h += '</div>';
+    }
+    body.innerHTML = h;
+  }
+  function pkStep(dir) {
+    if (pk.mode === 'day') { pk.m += dir; if (pk.m < 0) { pk.m = 11; pk.y--; } else if (pk.m > 11) { pk.m = 0; pk.y++; } }
+    else if (pk.mode === 'month') pk.y += dir;
+    else pk.base += dir * 12;
+    pkRender();
+  }
+  function pkBind() {
+    document.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-pick]');
+      if (b) { e.preventDefault(); return pkOpen(b.dataset.pick); }
+      if (!pk.id) return;
+      var t = e.target.closest('[data-pk-close],[data-pk-mode],[data-pk-day],[data-pk-m],[data-pk-y]');
+      if (!t) return;
+      if (t.dataset.pkClose) return pkClose();
+      if (t.dataset.pkDay) return pkPick(t.dataset.pkDay);
+      if (t.dataset.pkMode) { pk.mode = t.dataset.pkMode; if (pk.mode === 'year') pk.base = pk.y - 4; return pkRender(); }
+      if (t.dataset.pkM) { pk.m = Number(t.dataset.pkM); pk.mode = 'day'; return pkRender(); }
+      if (t.dataset.pkY) { pk.y = Number(t.dataset.pkY); pk.mode = 'month'; return pkRender(); }
+    });
+    $('#pk-prev').addEventListener('click', function () { pkStep(-1); });
+    $('#pk-next').addEventListener('click', function () { pkStep(1); });
+    $('#pk-today').addEventListener('click', function () { pkPick(todayISO()); });
+    document.addEventListener('input', function (e) {
+      var t = e.target;
+      if (!t.classList || !t.classList.contains('field') || !t.parentNode.classList.contains('df')) return;
+      var m = maskDate(t.value); if (m !== t.value) t.value = m;
+      if (t.id === 'xde') { exp.de = getDate('xde'); t.classList.toggle('bad', t.value.length === 10 && !exp.de); renderExpRes(); }
+      if (t.id === 'xate') { exp.ate = getDate('xate'); t.classList.toggle('bad', t.value.length === 10 && !exp.ate); renderExpRes(); }
+}, true);
+  }
+
   /* ---------- formulário ---------- */
   function setErr(id, msg) { var e = $('#e-' + id); if (e) e.textContent = msg || ''; var f = $('#f-' + (id === 'nome' ? 'nome' : id)); if (f) f.classList.toggle('bad', !!msg); }
 
   function updateCalc() {
-    var a = $('#f-ini').value, b = $('#f-fim').value, calc = $('#calc'), hints = [];
+    var a = getDate('f-ini'), b = getDate('f-fim'), calc = $('#calc'), hints = [];
     if (!a || !b || b < a) { calc.hidden = true; $('#hints').innerHTML = ''; return; }
     var dias = num(b) - num(a) + 1;
     var ret = addDays(b, 1);
@@ -1060,8 +1200,8 @@ textarea.field{min-height:84px;resize:vertical}
     $('#f-nome').value = r ? r.nome : '';
     $('#f-mat').value = r ? (r.matricula || '') : '';
     $('#f-setor').value = r ? (r.setor || '') : '';
-    $('#f-ini').value = r ? r.inicio : '';
-    $('#f-fim').value = r ? r.fim : '';
+    setDate('f-ini', r ? r.inicio : '');
+    setDate('f-fim', r ? r.fim : '');
     $('#f-obs').value = r ? (r.obs || '') : '';
     document.querySelector('input[name="status"][value="' + (r ? r.status : 'aprovada') + '"]').checked = true;
     ['nome', 'ini', 'fim'].forEach(function (k) { setErr(k, ''); });
@@ -1089,11 +1229,11 @@ textarea.field{min-height:84px;resize:vertical}
 
   function submitForm(ev) {
     ev.preventDefault();
-    var nome = $('#f-nome').value.trim(), a = $('#f-ini').value, b = $('#f-fim').value, ok = true;
+    var nome = $('#f-nome').value.trim(), a = getDate('f-ini'), b = getDate('f-fim'), ok = true;
     setErr('nome', ''); setErr('ini', ''); setErr('fim', '');
     if (!nome) { setErr('nome', 'Informe o nome do colaborador.'); ok = false; }
-    if (!a) { setErr('ini', 'Informe a data de início.'); ok = false; }
-    if (!b) { setErr('fim', 'Informe a data final.'); ok = false; }
+    if (!a) { setErr('ini', $('#f-ini').value.trim() ? 'Data inválida. Use dd/mm/aaaa.' : 'Informe a data de início.'); ok = false; }
+    if (!b) { setErr('fim', $('#f-fim').value.trim() ? 'Data inválida. Use dd/mm/aaaa.' : 'Informe a data final.'); ok = false; }
     else if (a && b < a) { setErr('fim', 'A data final não pode ser anterior ao início.'); ok = false; }
     if (!ok) { var bad = document.querySelector('.field.bad'); if (bad) bad.focus(); return; }
     var rec = {
@@ -1153,8 +1293,6 @@ textarea.field{min-height:84px;resize:vertical}
     if (e.target.id === 'fsetor') { filter.setor = e.target.value; renderResults(); }
     if (e.target.id === 'fstatus') { filter.status = e.target.value; renderResults(); }
     if (e.target.name === 'escopo') { exp.escopo = e.target.value; $('#xper').hidden = exp.escopo !== 'periodo'; renderExpRes(); }
-    if (e.target.id === 'xde') { exp.de = e.target.value; renderExpRes(); }
-    if (e.target.id === 'xate') { exp.ate = e.target.value; renderExpRes(); }
     if (e.target.id === 'xsetor') { exp.setor = e.target.value; renderExpRes(); }
     if (e.target.id === 'bk-on') bkToggle(e.target.checked);
     if (e.target.id === 'bk-freq') bkFreq(Number(e.target.value));
@@ -1175,8 +1313,12 @@ textarea.field{min-height:84px;resize:vertical}
   $('#btn-del').addEventListener('click', askDelete);
   ['#f-ini', '#f-fim', '#f-setor'].forEach(function (s) { $(s).addEventListener('input', function () { setErr('ini', ''); setErr('fim', ''); updateCalc(); }); });
   $('#f-nome').addEventListener('input', function () { setErr('nome', ''); });
-  window.addEventListener('popstate', function () { closeForm(true); });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeForm(); });
+  pkBind();
+  window.addEventListener('popstate', function () {
+    if (!$('#pk').hidden) { pkClose(); try { history.pushState({ f: 1 }, ''); } catch (e) {} return; }
+    closeForm(true);
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { if (!$('#pk').hidden) pkClose(); else closeForm(); } });
 
   /* ---------- início ---------- */
   var saved = load();
