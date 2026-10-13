@@ -58,6 +58,16 @@ jobs:
       - name: Renomear o APK
         run: cp android/app/build/outputs/apk/debug/app-debug.apk Gestao-de-Ferias.apk
 
+      - name: Conferir versão e assinatura do APK
+        run: |
+          AAPT=$(ls $ANDROID_HOME/build-tools/*/aapt | tail -1)
+          INFO=$($AAPT dump badging Gestao-de-Ferias.apk | head -1)
+          CERT=$(keytool -printcert -jarfile Gestao-de-Ferias.apk | grep "SHA256:" | head -1)
+          echo "### Dados do APK" >> "$GITHUB_STEP_SUMMARY"
+          echo "- $INFO" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Assinatura $CERT" >> "$GITHUB_STEP_SUMMARY"
+          echo "$INFO"; echo "$CERT"
+
       - name: Guardar o APK na execução
         uses: actions/upload-artifact@v4
         with:
