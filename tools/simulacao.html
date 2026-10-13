@@ -1,0 +1,884 @@
+<title>Gestão de Férias</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&display=swap">
+<style>
+/* Layout: app de celular em coluna única (cabeçalho, conteúdo rolável, barra inferior) com botão + flutuante.
+   Em tela larga o app aparece dentro de uma moldura de celular. */
+:root{
+  --bg:#F2F6F6; --surface:#FFFFFF; --ink:#10282C; --muted:#586F73; --line:#D9E3E4;
+  --brand:#0B6B75; --brand-ink:#FFFFFF; --brand-soft:#DCEEF0;
+  --sun:#F4B13D; --sun-soft:#FCEBC8; --sun-ink:#5A3B00;
+  --alert:#D8342F;
+  --ok:#2B7A57; --ok-soft:#DCF0E5;
+  --warn-soft:#FBEBC9; --warn-ink:#7A4D00;
+  --done:#5E7478; --done-soft:#E6EDEE;
+  --shadow:0 1px 2px rgba(16,40,44,.08),0 8px 22px rgba(16,40,44,.07);
+  --font-display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
+  --font-body:'Atkinson Hyperlegible','Segoe UI',Roboto,system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0B1A1D; --surface:#132528; --ink:#E5F1F2; --muted:#8FA9AD; --line:#244247;
+  --brand:#4FC1CE; --brand-ink:#06262B; --brand-soft:#173A40;
+  --sun:#F2B24A; --sun-soft:#3A2F14; --sun-ink:#F6D58E;
+  --alert:#FF6B63;
+  --ok:#5FD39A; --ok-soft:#14352A;
+  --warn-soft:#3A2F14; --warn-ink:#F6D58E;
+  --done:#9DB3B7; --done-soft:#1B3236;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 22px rgba(0,0,0,.3);
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0B1A1D; --surface:#132528; --ink:#E5F1F2; --muted:#8FA9AD; --line:#244247;
+  --brand:#4FC1CE; --brand-ink:#06262B; --brand-soft:#173A40;
+  --sun:#F2B24A; --sun-soft:#3A2F14; --sun-ink:#F6D58E;
+  --alert:#FF6B63;
+  --ok:#5FD39A; --ok-soft:#14352A;
+  --warn-soft:#3A2F14; --warn-ink:#F6D58E;
+  --done:#9DB3B7; --done-soft:#1B3236;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 22px rgba(0,0,0,.3);
+  color-scheme:dark}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.4}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+h1,h2,h3{font-family:var(--font-display);margin:0;font-weight:700;text-wrap:balance}
+.num{font-variant-numeric:tabular-nums}
+
+.app{position:relative;display:flex;flex-direction:column;height:100%;width:100%;background:var(--bg);overflow:hidden}
+@media (min-width:600px){
+  body{display:grid;place-items:center;padding-block:24px;background:color-mix(in srgb,var(--bg) 80%,var(--ink) 8%)}
+  .app{width:410px;height:min(840px,100%);border-radius:30px;border:1px solid var(--line);box-shadow:0 20px 60px rgba(0,0,0,.18)}
+}
+
+/* cabeçalho */
+.top{padding:calc(14px + env(safe-area-inset-top,0px)) 16px 10px;display:flex;align-items:center;gap:12px}
+.mark{flex:none;width:40px;height:40px;border-radius:12px;background:linear-gradient(#0E8791,#084F58);display:grid;place-items:center}
+.top small{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.top h1{font-size:23px;line-height:1.1}
+.demo{margin:0 16px 4px;padding:8px 12px;border-radius:12px;background:var(--sun-soft);color:var(--sun-ink);font-size:13.5px;display:flex;gap:10px;align-items:center;justify-content:space-between}
+.demo button{border:0;background:transparent;color:inherit;text-decoration:underline;padding:4px;font-size:13.5px}
+
+main{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:8px 16px 150px}
+section.screen{display:flex;flex-direction:column;gap:18px}
+.block-title{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:8px}
+.block-title h2{font-size:17px}
+.block-title span{font-size:13.5px;color:var(--muted)}
+
+/* cartões de registro */
+.list{display:flex;flex-direction:column;gap:10px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;text-align:left;width:100%;min-width:0}
+.card-head{display:flex;gap:10px;justify-content:space-between;align-items:flex-start}
+.card-head strong{font-size:16.5px;overflow-wrap:anywhere}
+.meta{font-size:14px;color:var(--muted);overflow-wrap:anywhere}
+.period{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:15px}
+.period b{font-weight:700}
+.badge{flex:none;font-size:12.5px;font-weight:700;padding:3px 9px;border-radius:99px;white-space:nowrap}
+.b-pend{background:var(--warn-soft);color:var(--warn-ink)}
+.b-prog{background:var(--brand-soft);color:var(--brand)}
+.b-now{background:var(--ok-soft);color:var(--ok)}
+.b-done{background:var(--done-soft);color:var(--done)}
+.days{font-size:13px;color:var(--muted)}
+.actions{display:flex;gap:8px;margin-top:2px}
+.btn{border:0;border-radius:12px;padding:11px 16px;font-weight:700;min-height:44px}
+.btn-primary{background:var(--brand);color:var(--brand-ink)}
+.btn-soft{background:var(--brand-soft);color:var(--brand)}
+.btn-ghost{background:transparent;border:1px solid var(--line)}
+.btn-danger{background:transparent;border:1px solid var(--alert);color:var(--alert)}
+.btn-danger.sure{background:var(--alert);color:#fff}
+.btn-sm{min-height:36px;padding:7px 13px;font-size:14px}
+
+.empty{padding:22px 16px;border:1.5px dashed var(--line);border-radius:16px;text-align:center;color:var(--muted)}
+.empty b{display:block;color:var(--ink);font-family:var(--font-display);font-size:17px;margin-bottom:4px}
+
+/* resumo */
+.hero{background:var(--brand);color:var(--brand-ink);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.hero h2{font-size:15px;font-weight:600;opacity:.9}
+.hero .big{font-family:var(--font-display);font-size:38px;font-weight:700;line-height:1}
+.hero .names{font-size:15px;opacity:.95}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.stat b{display:block;font-family:var(--font-display);font-size:26px;line-height:1.1}
+.stat span{font-size:13.5px;color:var(--muted)}
+
+/* filtros */
+.filters{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.filters .q{grid-column:1/-1}
+.field{width:100%;min-width:0;min-height:46px;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 12px}
+.filters-note{display:flex;justify-content:space-between;align-items:center;font-size:13.5px;color:var(--muted)}
+.filters-note button{border:0;background:none;color:var(--brand);text-decoration:underline;font-size:13.5px;padding:4px}
+
+/* calendário */
+.cal{background:var(--surface);border:1px solid var(--line);border-radius:20px;overflow:hidden;touch-action:pan-y}
+.cal-head{display:flex;align-items:center;gap:6px;padding:10px 10px 10px 14px;background:var(--surface);border-bottom:1px solid var(--line)}
+.cal.is-now .cal-head{background:var(--sun);color:#2B1B00;border-bottom-color:transparent}
+.cal-head h2{flex:1;font-size:19px;min-width:0}
+.cal-head .tag{display:block;font-family:var(--font-body);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;opacity:.8}
+.iconbtn{width:44px;height:44px;border-radius:12px;border:0;background:transparent;display:grid;place-items:center;font-size:20px;color:inherit}
+.iconbtn:active{background:rgba(0,0,0,.08)}
+.cal.is-now{border-color:var(--sun)}
+.cal.is-now .cal-grid{background:color-mix(in srgb,var(--sun-soft) 45%,var(--surface))}
+.today-btn{border:1px solid currentColor;background:transparent;border-radius:99px;font-size:13.5px;font-weight:700;padding:6px 12px;min-height:34px}
+.cal-grid{display:grid;grid-template-columns:30px repeat(7,1fr);padding:6px 6px 10px;gap:2px}
+.dow{font-size:12.5px;font-weight:700;color:var(--muted);text-align:center;padding:6px 0}
+.day{position:relative;aspect-ratio:1/1.05;min-height:44px;border:0;background:transparent;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:16px;font-variant-numeric:tabular-nums}
+.day.out{visibility:hidden}
+.day.we{color:var(--muted)}
+.day .dot{width:7px;height:7px;border-radius:50%;background:transparent}
+.day.has .dot{background:var(--alert)}
+.day.today{background:var(--brand);color:var(--brand-ink);font-weight:700}
+.day.today.has .dot{background:#fff;box-shadow:0 0 0 1.5px var(--alert)}
+.day.sel{outline:2.5px solid var(--ink);outline-offset:-2.5px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--alert);margin-right:6px;vertical-align:baseline}
+.legend em{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--brand);margin-right:6px;vertical-align:-1px}
+
+/* navegação inferior e botão + */
+nav{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
+nav button{border:0;background:transparent;border-radius:14px;padding:8px 2px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12.5px;color:var(--muted);min-height:56px}
+nav button svg{width:24px;height:24px}
+nav button[aria-current="page"]{color:var(--brand);font-weight:700;background:var(--brand-soft)}
+.fab{position:absolute;right:16px;bottom:calc(84px + env(safe-area-inset-bottom,0px));min-width:56px;height:56px;border-radius:18px;border:0;background:var(--sun);color:#2B1B00;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 18px;box-shadow:0 6px 18px rgba(0,0,0,.25);font-size:16px}
+.fab svg{width:22px;height:22px}
+
+/* formulário */
+.sheet{position:absolute;inset:0;background:var(--bg);display:flex;flex-direction:column;z-index:5;animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.sheet{animation:none}}
+.sheet header{display:flex;align-items:center;gap:6px;padding:calc(10px + env(safe-area-inset-top,0px)) 10px 8px;border-bottom:1px solid var(--line);background:var(--surface)}
+.sheet header h2{font-size:19px;flex:1}
+.sheet form{flex:1;overflow-y:auto;padding:16px 16px 28px;display:flex;flex-direction:column;gap:16px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.lb{display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:14.5px;min-width:0}
+.lb .opt{font-weight:400;color:var(--muted)}
+textarea.field{min-height:84px;resize:vertical}
+.err{color:var(--alert);font-size:13.5px;font-weight:400}
+.field.bad{border-color:var(--alert)}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--done-soft);padding:4px;border-radius:14px}
+.seg label{position:relative}
+.seg input{position:absolute;opacity:0;inset:0}
+.seg span{display:block;text-align:center;padding:10px 6px;border-radius:10px;font-weight:700;color:var(--muted)}
+.seg input:checked+span{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.seg input:focus-visible+span{outline:3px solid var(--brand)}
+.calc{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:10px 12px;border-radius:12px;background:var(--brand-soft);color:var(--brand);font-weight:700}
+.calc small{font-weight:400;color:var(--ink)}
+.hint{padding:10px 12px;border-radius:12px;background:var(--warn-soft);color:var(--warn-ink);font-size:14px}
+.form-actions{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+.toast{position:absolute;left:16px;right:16px;bottom:calc(150px + env(safe-area-inset-bottom,0px));z-index:9;background:var(--ink);color:var(--bg);padding:12px 14px;border-radius:12px;text-align:center;font-weight:700;box-shadow:var(--shadow)}
+.card-open{all:unset;box-sizing:border-box;display:flex;flex-direction:column;gap:8px;width:100%;min-width:0;cursor:pointer;border-radius:10px}
+.card-open:focus-visible{outline:3px solid var(--brand);outline-offset:4px}
+.card{box-shadow:var(--shadow)}
+.card .card-head{display:flex}
+
+/* exportação */
+.paper{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.paper-head{background:var(--brand);color:var(--brand-ink);padding:12px 14px;border-bottom:4px solid var(--sun);display:flex;flex-direction:column;gap:2px}
+.paper-head b{font-family:var(--font-display);font-size:17px}
+.paper-head span{font-size:13px;opacity:.92;overflow-wrap:anywhere}
+.paper-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:10px 10px 6px}
+.paper-kpis span{border:1px solid var(--line);border-radius:10px;padding:6px 8px;font-size:11.5px;color:var(--muted);min-width:0}
+.paper-kpis b{display:block;font-family:var(--font-display);font-size:18px;color:var(--brand)}
+.prow{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;padding:8px 14px;border-top:1px solid var(--line);font-size:13.5px}
+.prow:nth-of-type(odd){background:color-mix(in srgb,var(--bg) 60%,var(--surface))}
+.pn{min-width:0;overflow-wrap:anywhere;font-weight:700}
+.pn small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.pd{color:var(--muted);font-size:12.5px}
+.pmore{padding:8px 14px;border-top:1px solid var(--line);font-size:13px;color:var(--muted);text-align:center}
+.btn:disabled{opacity:.5;cursor:default}
+.wk{align-self:center;justify-self:center;font-size:12px;font-variant-numeric:tabular-nums;color:var(--muted);width:24px;text-align:center;padding:3px 0;border-radius:8px;background:color-mix(in srgb,var(--line) 45%,transparent)}
+.dow.wk{background:none;font-size:11px;font-weight:700;width:auto}
+.wk.now{background:var(--brand);color:var(--brand-ink);font-weight:700}
+</style>
+
+<div class="app" id="app">
+  <header class="top">
+    <div class="mark" aria-hidden="true">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="15.5" rx="3" fill="#fff"/><path d="M3.5 8a3 3 0 0 1 3-3h11a3 3 0 0 1 3 3v2.2h-17z" fill="#F4B13D"/><path d="M8.2 17.2a3.8 3.8 0 0 1 7.6 0z" fill="#E0483C"/><path d="M12 13.4v6" stroke="#0A4E56" stroke-width="1.4" stroke-linecap="round"/></svg>
+    </div>
+    <div>
+      <small id="top-small">Gestão de férias</small>
+      <h1 id="top-title">Resumo</h1>
+    </div>
+  </header>
+  <div class="demo" id="demo" hidden>
+    <span>Simulação com dados de exemplo.</span>
+    <button type="button" id="demo-reset">Restaurar exemplos</button>
+  </div>
+
+  <main id="main" tabindex="-1"></main>
+
+  <button class="fab" id="fab" type="button" aria-label="Novo cadastro de férias">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    <span>Novo</span>
+  </button>
+
+  <nav aria-label="Seções do aplicativo">
+    <button type="button" data-tab="resumo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="8" rx="2"/><rect x="13.5" y="3.5" width="7" height="5" rx="2"/><rect x="13.5" y="11.5" width="7" height="9" rx="2"/><rect x="3.5" y="14.5" width="7" height="6" rx="2"/></svg>
+      Resumo
+    </button>
+    <button type="button" data-tab="cad">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6.5h12M8 12h12M8 17.5h12"/><circle cx="4" cy="6.5" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="17.5" r="1" fill="currentColor"/></svg>
+      Cadastros
+    </button>
+    <button type="button" data-tab="cal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
+      Calendário
+    </button>
+    <button type="button" data-tab="exp">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3.5H7.5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V8z"/><path d="M14 3.5V8h4.5M12 11.5v5.2M9.8 14.7l2.2 2.2 2.2-2.2"/></svg>
+      Exportar
+    </button>
+  </nav>
+
+  <div class="toast" id="toast" hidden role="status"></div>
+
+  <div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+    <header>
+      <button type="button" class="iconbtn" id="sheet-close" aria-label="Fechar">&#10005;</button>
+      <h2 id="sheet-title">Novo cadastro</h2>
+    </header>
+    <form id="form" novalidate>
+      <label class="lb" for="f-nome">Nome do colaborador
+        <input class="field" id="f-nome" autocomplete="off" maxlength="80">
+        <span class="err" id="e-nome"></span>
+      </label>
+      <div class="row2">
+        <label class="lb" for="f-mat">Matrícula <span class="opt">(opcional)</span>
+          <input class="field" id="f-mat" inputmode="numeric" maxlength="20" autocomplete="off">
+        </label>
+        <label class="lb" for="f-setor">Setor
+          <input class="field" id="f-setor" list="setores" maxlength="40" autocomplete="off">
+          <datalist id="setores"></datalist>
+        </label>
+      </div>
+      <div class="row2">
+        <label class="lb" for="f-ini">Início
+          <input type="date" class="field" id="f-ini">
+          <span class="err" id="e-ini"></span>
+        </label>
+        <label class="lb" for="f-fim">Fim
+          <input type="date" class="field" id="f-fim">
+          <span class="err" id="e-fim"></span>
+        </label>
+      </div>
+      <div class="calc" id="calc" hidden></div>
+      <div id="hints" class="list"></div>
+      <div class="lb" role="radiogroup" aria-label="Situação">Situação
+        <div class="seg">
+          <label><input type="radio" name="status" value="aprovada" checked><span>Aprovada</span></label>
+          <label><input type="radio" name="status" value="pendente"><span>Pendente</span></label>
+        </div>
+      </div>
+      <label class="lb" for="f-obs">Observações <span class="opt">(opcional)</span>
+        <textarea class="field" id="f-obs" maxlength="300"></textarea>
+      </label>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Salvar cadastro</button>
+        <button type="button" class="btn btn-danger" id="btn-del" hidden>Excluir cadastro</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+(function () {
+  'use strict';
+  var DEMO = true;
+  var KEY = 'gestao-ferias.v1';
+  var MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  var DIAS = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
+  var DOW = ['D','S','T','Q','Q','S','S'];
+  var TITULOS = { resumo: 'Resumo', cad: 'Cadastros', cal: 'Calendário', exp: 'Exportar' };
+  var STATUS_FILTRO = [['', 'Todas as situações'], ['pend', 'Pendente'], ['prog', 'Programada'], ['now', 'Em férias'], ['done', 'Concluída']];
+
+  function $(s) { return document.querySelector(s); }
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function iso(y, m, d) { return y + '-' + pad(m + 1) + '-' + pad(d); }
+  function todayISO() { var d = new Date(); return iso(d.getFullYear(), d.getMonth(), d.getDate()); }
+  function parts(s) { return s.split('-').map(Number); }
+  function num(s) { var p = parts(s); return Date.UTC(p[0], p[1] - 1, p[2]) / 86400000; }
+  function addDays(s, n) { var p = parts(s); var d = new Date(Date.UTC(p[0], p[1] - 1, p[2] + n)); return iso(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()); }
+  function fmt(s) { var p = s.split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
+  function fmtS(s) { var p = s.split('-'); return p[2] + '/' + p[1]; }
+  function span(r) { return num(r.fim) - num(r.inicio) + 1; }
+  function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function norm(s) { return String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+  function plural(n, um, varios) { return n + ' ' + (n === 1 ? um : varios); }
+  function byInicio(a, b) { return a.inicio.localeCompare(b.inicio); }
+
+  /* ---------- dados ---------- */
+  var data = [];
+  var tab = 'resumo';
+  var now0 = new Date();
+  var view = { y: now0.getFullYear(), m: now0.getMonth() };
+  var selected = null;
+  var filter = { q: '', setor: '', status: '' };
+  var editingId = null;
+  var exp = { escopo: 'todos', de: '', ate: '', setor: '' };
+  (function () {
+    var n = new Date(), y = n.getFullYear(), m = n.getMonth();
+    exp.de = iso(y, m, 1);
+    exp.ate = iso(y, m, new Date(Date.UTC(y, m + 1, 0)).getUTCDate());
+  })();
+
+  function load() { try { var s = localStorage.getItem(KEY); if (s) return JSON.parse(s); } catch (e) {} return null; }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) {} }
+
+  function seed() {
+    var t = todayISO();
+    function mk(nome, mat, setor, off, dias, status, obs) {
+      return { id: uid(), nome: nome, matricula: mat, setor: setor, inicio: addDays(t, off), fim: addDays(t, off + dias - 1), status: status, obs: obs || '' };
+    }
+    return [
+      mk('Marina Alves', '10482', 'Qualidade', -3, 14, 'aprovada'),
+      mk('Rafael Souza', '10517', 'Produção', 9, 10, 'aprovada', 'Retorna na segunda-feira.'),
+      mk('Bruno Teixeira', '10733', 'Produção', 12, 10, 'pendente'),
+      mk('Camila Ferreira', '10269', 'Metrologia', 9, 15, 'pendente'),
+      mk('Diego Rocha', '10655', 'Qualidade', 25, 5, 'pendente'),
+      mk('Juliana Prado', '10391', 'Logística', 40, 15, 'aprovada'),
+      mk('Patrícia Nunes', '10124', 'RH', 60, 20, 'aprovada'),
+      mk('Thiago Mendes', '10808', 'Manutenção', -40, 10, 'aprovada')
+    ];
+  }
+
+  function situacao(r) {
+    if (r.status === 'pendente') return { k: 'pend', t: 'Pendente' };
+    var t = todayISO();
+    if (r.fim < t) return { k: 'done', t: 'Concluída' };
+    if (r.inicio <= t) return { k: 'now', t: 'Em férias' };
+    return { k: 'prog', t: 'Programada' };
+  }
+
+  function filtered() {
+    var q = norm(filter.q.trim());
+    return data.filter(function (r) {
+      return (!filter.setor || r.setor === filter.setor) &&
+        (!filter.status || situacao(r).k === filter.status) &&
+        (!q || norm(r.nome + ' ' + (r.matricula || '')).indexOf(q) !== -1);
+    });
+  }
+  function filtroAtivo() { return !!(filter.q.trim() || filter.setor || filter.status); }
+
+  /* ---------- peças de tela ---------- */
+  function cardHTML(r, opts) {
+    opts = opts || {};
+    var s = situacao(r);
+    var meta = [];
+    if (r.matricula) meta.push('Matrícula ' + esc(r.matricula));
+    meta.push(esc(r.setor || 'Sem setor'));
+    var extra = '';
+    if (s.k === 'now') extra = ' · retorno em ' + fmtS(addDays(r.fim, 1));
+    var h = '<article class="card">' +
+      '<button type="button" class="card-open" data-edit="' + r.id + '">' +
+      '<span class="card-head"><strong>' + esc(r.nome) + '</strong><span class="badge b-' + s.k + '">' + s.t + '</span></span>' +
+      '<span class="meta">' + meta.join(' · ') + '</span>' +
+      '<span class="period num"><b>' + fmt(r.inicio) + '</b> a <b>' + fmt(r.fim) + '</b></span>' +
+      '<span class="days">' + plural(span(r), 'dia corrido', 'dias corridos') + extra + '</span>' +
+      (r.obs ? '<span class="meta">' + esc(r.obs) + '</span>' : '') +
+      '</button>';
+    if (opts.approve && r.status === 'pendente') {
+      h += '<div class="actions"><button type="button" class="btn btn-soft btn-sm" data-approve="' + r.id + '">Aprovar</button></div>';
+    }
+    return h + '</article>';
+  }
+
+  function listHTML(arr, opts, emptyTitle, emptyText) {
+    if (!arr.length) return '<div class="empty"><b>' + emptyTitle + '</b>' + emptyText + '</div>';
+    return '<div class="list">' + arr.map(function (r) { return cardHTML(r, opts); }).join('') + '</div>';
+  }
+
+  function filtersHTML() {
+    var setores = Array.from(new Set(data.map(function (r) { return r.setor; }).filter(Boolean))).sort(function (a, b) { return a.localeCompare(b, 'pt-BR'); });
+    if (filter.setor && setores.indexOf(filter.setor) === -1) filter.setor = '';
+    var so = '<option value="">Todos os setores</option>' + setores.map(function (s) { return '<option value="' + esc(s) + '"' + (s === filter.setor ? ' selected' : '') + '>' + esc(s) + '</option>'; }).join('');
+    var st = STATUS_FILTRO.map(function (o) { return '<option value="' + o[0] + '"' + (o[0] === filter.status ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('');
+    return '<div class="filters">' +
+      '<input class="field q" id="q" type="search" placeholder="Buscar por nome ou matrícula" aria-label="Buscar por nome ou matrícula" value="' + esc(filter.q) + '" autocomplete="off">' +
+      '<select class="field" id="fsetor" aria-label="Filtrar por setor">' + so + '</select>' +
+      '<select class="field" id="fstatus" aria-label="Filtrar por situação">' + st + '</select>' +
+      '</div><div class="filters-note" id="fnote"></div>';
+  }
+
+  function updateNote(shown) {
+    var el = $('#fnote'); if (!el) return;
+    el.innerHTML = filtroAtivo()
+      ? '<span>Filtro ativo: ' + plural(shown, 'cadastro', 'cadastros') + ' de ' + data.length + '</span><button type="button" data-clear="1">Limpar filtros</button>'
+      : '';
+  }
+
+  /* ---------- telas ---------- */
+  function viewResumo() {
+    var t = todayISO(), lim30 = addDays(t, 30), lim60 = addDays(t, 60);
+    var ativos = data.filter(function (r) { return r.status === 'aprovada' && r.inicio <= t && t <= r.fim; }).sort(byInicio);
+    var prox = data.filter(function (r) { return r.inicio > t && r.inicio <= lim60; }).sort(byInicio).slice(0, 5);
+    var pend = data.filter(function (r) { return r.status === 'pendente'; }).sort(byInicio);
+    var em30 = data.filter(function (r) { return r.inicio > t && r.inicio <= lim30; }).length;
+
+    if (!data.length) {
+      return '<section class="screen"><div class="empty"><b>Nenhum cadastro ainda</b>Toque em “Novo” para registrar as primeiras férias de um colaborador.</div></section>';
+    }
+    var nomes = ativos.map(function (r) { return r.nome; });
+    var txt = !nomes.length ? 'Ninguém em férias hoje.' : (nomes.length > 3 ? nomes.slice(0, 3).join(', ') + ' e mais ' + (nomes.length - 3) : nomes.join(', '));
+    return '<section class="screen">' +
+      '<div class="hero"><h2>Em férias hoje</h2><div class="big num">' + ativos.length + '</div><div class="names">' + esc(txt) + '</div></div>' +
+      '<div class="stats"><div class="stat"><b class="num">' + em30 + '</b><span>começam em 30 dias</span></div>' +
+      '<div class="stat"><b class="num">' + pend.length + '</b><span>aguardando aprovação</span></div></div>' +
+      '<div><div class="block-title"><h2>Próximas saídas</h2><span>até 60 dias</span></div>' +
+      listHTML(prox, {}, 'Sem saídas previstas', 'Nenhuma férias começa nos próximos 60 dias.') + '</div>' +
+      (pend.length ? '<div><div class="block-title"><h2>Para aprovar</h2><span>' + pend.length + '</span></div>' + listHTML(pend, { approve: true }, '', '') + '</div>' : '') +
+      '</section>';
+  }
+
+  function rank(r) { return situacao(r).k === 'done' ? 1 : 0; }
+  function resultsCad() {
+    var arr = filtered().sort(function (a, b) {
+      var ra = rank(a), rb = rank(b);
+      if (ra !== rb) return ra - rb;
+      return ra === 0 ? byInicio(a, b) : byInicio(b, a);
+    });
+    $('#results').innerHTML = (data.length
+      ? listHTML(arr, { approve: true }, 'Nada encontrado', 'Nenhum cadastro combina com os filtros atuais.')
+      : '<div class="empty"><b>Nenhum cadastro ainda</b>Toque em “Novo” para registrar as primeiras férias.</div>');
+    updateNote(arr.length);
+  }
+
+  function calHTML(list) {
+    var t = todayISO(), n0 = new Date();
+    var isNow = view.y === n0.getFullYear() && view.m === n0.getMonth();
+    var first = new Date(Date.UTC(view.y, view.m, 1)).getUTCDay();
+    var dim = new Date(Date.UTC(view.y, view.m + 1, 0)).getUTCDate();
+    function isoWeek(dt) {
+      var x = new Date(Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate()));
+      x.setUTCDate(x.getUTCDate() + 4 - (x.getUTCDay() || 7));
+      var y0 = Date.UTC(x.getUTCFullYear(), 0, 1);
+      return Math.ceil(((x.getTime() - y0) / 86400000 + 1) / 7);
+    }
+    var primeiro = iso(view.y, view.m, 1);
+    function wkCell(r) {
+      // a linha vai de domingo a sábado; a semana ISO é a da quinta-feira da linha
+      var n = isoWeek(new Date(Date.UTC(view.y, view.m, 1 - first + 7 * r + 4)));
+      var ini = addDays(primeiro, 7 * r - first), fim = addDays(ini, 6);
+      return '<span class="wk' + (ini <= t && t <= fim ? ' now' : '') + '" aria-label="Semana ' + n + '">' + n + '</span>';
+    }
+    var cells = '<span class="dow wk" aria-hidden="true">Sem</span>' + DOW.map(function (d) { return '<span class="dow" aria-hidden="true">' + d + '</span>'; }).join('');
+    if (first > 0) cells += wkCell(0);
+    for (var i = 0; i < first; i++) cells += '<span class="day out"></span>';
+    for (var d = 1; d <= dim; d++) {
+      if ((first + d - 1) % 7 === 0) cells += wkCell((first + d - 1) / 7);
+      var s = iso(view.y, view.m, d);
+      var n = list.filter(function (r) { return r.inicio <= s && s <= r.fim; }).length;
+      var dw = (first + d - 1) % 7;
+      var cls = 'day' + (n ? ' has' : '') + (s === t ? ' today' : '') + (s === selected ? ' sel' : '') + ((dw === 0 || dw === 6) ? ' we' : '');
+      cells += '<button type="button" class="' + cls + '" data-day="' + s + '" aria-label="' + d + ' de ' + MESES[view.m] + (n ? ', ' + plural(n, 'colaborador', 'colaboradores') + ' de férias' : '') + '"' + (s === selected ? ' aria-pressed="true"' : '') + '>' + d + '<span class="dot"></span></button>';
+    }
+    for (var pos = first + dim; pos % 7; pos++) cells += '<span class="day out"></span>';
+    return '<div class="cal' + (isNow ? ' is-now' : '') + '">' +
+      '<div class="cal-head">' +
+      '<button type="button" class="iconbtn" data-nav="-1" aria-label="Mês anterior">&#8249;</button>' +
+      '<h2>' + (isNow ? '<span class="tag">Mês atual</span>' : '') + cap(MESES[view.m]) + ' de ' + view.y + '</h2>' +
+      '<button type="button" class="today-btn" data-today="1">Hoje</button>' +
+      '<button type="button" class="iconbtn" data-nav="1" aria-label="Próximo mês">&#8250;</button>' +
+      '</div><div class="cal-grid">' + cells + '</div></div>' +
+      '<div class="legend"><span><i></i>Dia com férias cadastradas</span><span><em></em>Hoje</span><span>Sem: semana do ano</span></div>';
+  }
+
+  function resultsCal() {
+    var list = filtered();
+    var h = calHTML(list), arr, title, sub;
+    if (selected) {
+      arr = list.filter(function (r) { return r.inicio <= selected && selected <= r.fim; }).sort(byInicio);
+      var p = parts(selected);
+      title = cap(DIAS[new Date(Date.UTC(p[0], p[1] - 1, p[2])).getUTCDay()]) + ', ' + p[2] + ' de ' + MESES[p[1] - 1];
+      sub = plural(arr.length, 'colaborador', 'colaboradores');
+    } else {
+      var a = iso(view.y, view.m, 1), b = iso(view.y, view.m, new Date(Date.UTC(view.y, view.m + 1, 0)).getUTCDate());
+      arr = list.filter(function (r) { return r.inicio <= b && r.fim >= a; }).sort(byInicio);
+      title = 'Férias em ' + MESES[view.m];
+      sub = plural(arr.length, 'cadastro', 'cadastros');
+    }
+    h += '<div><div class="block-title"><h2>' + title + '</h2><span>' + sub + '</span></div>' +
+      listHTML(arr, {}, selected ? 'Ninguém neste dia' : 'Sem férias neste mês', filtroAtivo() ? 'Nenhum cadastro filtrado cai neste período.' : 'Nenhum cadastro cai neste período.') + '</div>';
+    $('#results').innerHTML = h;
+    updateNote(list.length);
+  }
+
+  function renderResults() { if (tab === 'cad') resultsCad(); else if (tab === 'cal') resultsCal(); else if (tab === 'exp') renderExpRes(); }
+
+  /* ---------- exportação ---------- */
+  function setoresLista() {
+    return Array.from(new Set(data.map(function (r) { return r.setor; }).filter(Boolean))).sort(function (a, b) { return a.localeCompare(b, 'pt-BR'); });
+  }
+
+  function expInfo() {
+    return {
+      periodo: exp.escopo === 'periodo' ? 'Período: ' + fmt(exp.de) + ' a ' + fmt(exp.ate) : 'Todos os cadastros',
+      setor: exp.setor ? 'Setor: ' + exp.setor : 'Todos os setores',
+      geradoEm: new Date()
+    };
+  }
+
+  function expErro() {
+    if (exp.escopo !== 'periodo') return '';
+    if (!exp.de || !exp.ate) return 'Informe as duas datas do período.';
+    if (exp.ate < exp.de) return 'A data final não pode ser anterior à inicial.';
+    return '';
+  }
+
+  function expRecords() {
+    if (expErro()) return [];
+    return data.filter(function (r) {
+      if (exp.setor && r.setor !== exp.setor) return false;
+      if (exp.escopo === 'periodo' && !(r.inicio <= exp.ate && r.fim >= exp.de)) return false;
+      return true;
+    }).sort(function (a, b) { return byInicio(a, b) || a.nome.localeCompare(b.nome, 'pt-BR'); });
+  }
+
+  function stats(recs) {
+    var dias = 0, ap = 0, pe = 0;
+    recs.forEach(function (r) { dias += span(r); if (r.status === 'pendente') pe++; else ap++; });
+    return { n: recs.length, dias: dias, ap: ap, pe: pe };
+  }
+
+  function viewExport() {
+    var so = '<option value="">Todos os setores</option>' + setoresLista().map(function (s) { return '<option value="' + esc(s) + '"' + (s === exp.setor ? ' selected' : '') + '>' + esc(s) + '</option>'; }).join('');
+    function radio(v, t) { return '<label><input type="radio" name="escopo" value="' + v + '"' + (exp.escopo === v ? ' checked' : '') + '><span>' + t + '</span></label>'; }
+    return '<section class="screen">' +
+      '<div class="lb" role="radiogroup" aria-label="O que exportar">O que exportar<div class="seg">' + radio('todos', 'Completo') + radio('periodo', 'Período específico') + '</div></div>' +
+      '<div class="row2" id="xper"' + (exp.escopo === 'periodo' ? '' : ' hidden') + '>' +
+      '<label class="lb" for="xde">De<input type="date" class="field" id="xde" value="' + exp.de + '"></label>' +
+      '<label class="lb" for="xate">Até<input type="date" class="field" id="xate" value="' + exp.ate + '"></label></div>' +
+      '<label class="lb" for="xsetor">Setor<select class="field" id="xsetor">' + so + '</select></label>' +
+      '<div id="expres" class="screen"></div></section>';
+  }
+
+  function renderExpRes() {
+    var el = $('#expres'); if (!el) return;
+    var erro = expErro(), recs = expRecords(), st = stats(recs), info = expInfo();
+    var h = '';
+    if (erro) h += '<div class="hint">' + erro + '</div>';
+    if (!recs.length) {
+      h += '<div class="empty"><b>Nada para exportar</b>' + (erro ? 'Corrija o período para continuar.' : (data.length ? 'Nenhum cadastro cai neste período ou setor.' : 'Ainda não há cadastros.')) + '</div>';
+      h += '<button type="button" class="btn btn-primary" disabled>Gerar PDF</button>';
+    } else {
+      var rows = recs.slice(0, 6).map(function (r) {
+        var s = situacao(r);
+        return '<div class="prow"><span class="pn">' + esc(r.nome) + '<small>' + esc(r.setor || 'Sem setor') + '</small></span><span class="pd num">' + fmtS(r.inicio) + ' a ' + fmtS(r.fim) + '</span><span class="badge b-' + s.k + '">' + s.t + '</span></div>';
+      }).join('');
+      h += '<div class="paper" aria-label="Pré-visualização do relatório">' +
+        '<div class="paper-head"><b>Relatório de Férias</b><span>' + esc(info.periodo) + ' · ' + esc(info.setor) + '</span></div>' +
+        '<div class="paper-kpis"><span><b class="num">' + st.n + '</b>cadastros</span><span><b class="num">' + st.dias + '</b>dias</span><span><b class="num">' + st.ap + '</b>aprovadas</span><span><b class="num">' + st.pe + '</b>pendentes</span></div>' +
+        rows + (recs.length > 6 ? '<div class="pmore">e mais ' + (recs.length - 6) + ' no PDF</div>' : '') + '</div>';
+      h += '<button type="button" class="btn btn-primary" id="btn-gerar" data-gerar="1">Gerar PDF (A4, retrato)</button>';
+      h += '<p class="meta" style="margin:0">' + (DEMO ? 'Na simulação o download fica bloqueado. No celular, o PDF abre para você salvar ou compartilhar.' : 'O PDF abre para você salvar em Arquivos, Drive ou enviar por WhatsApp e e-mail.') + '</p>';
+    }
+    el.innerHTML = h;
+  }
+
+  /* ---------- PDF ---------- */
+  function buildPdf(JsPDF, recs, info) {
+    var doc = new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+    var W = 210, H = 297, M = 14, CW = W - 2 * M;
+    var TEAL = [11, 107, 117], SUN = [244, 177, 61], INK = [16, 40, 44], MUT = [88, 111, 115], LINE = [217, 227, 228], ZEB = [244, 248, 248];
+    var BADGE = { pend: [[251, 235, 201], [122, 77, 0]], prog: [[220, 238, 240], TEAL], now: [[220, 240, 229], [43, 122, 87]], done: [[230, 237, 238], [94, 116, 120]] };
+    function fill(c) { doc.setFillColor(c[0], c[1], c[2]); }
+    function draw(c) { doc.setDrawColor(c[0], c[1], c[2]); }
+    function font(sz, st, c) { doc.setFontSize(sz); doc.setFont('helvetica', st || 'normal'); doc.setTextColor(c[0], c[1], c[2]); }
+    function fit(t, w) {
+      t = String(t);
+      if (doc.getTextWidth(t) <= w) return t;
+      while (t.length > 1 && doc.getTextWidth(t + '...') > w) t = t.slice(0, -1);
+      return t + '...';
+    }
+    function dh(d) { return pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + d.getFullYear() + ' às ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+
+    /* cabeçalho */
+    fill(TEAL); doc.rect(0, 0, W, 31, 'F');
+    fill(SUN); doc.rect(0, 31, W, 1.6, 'F');
+    font(19, 'bold', [255, 255, 255]); doc.text('Relatório de Férias', M, 14);
+    font(10, 'normal', [255, 255, 255]); doc.text('Colaboradores', M, 20.5);
+    font(9, 'bold', [255, 255, 255]); doc.text(info.periodo, W - M, 13, { align: 'right' });
+    font(9, 'normal', [255, 255, 255]);
+    doc.text(info.setor, W - M, 18.5, { align: 'right' });
+    doc.text('Gerado em ' + dh(info.geradoEm), W - M, 24, { align: 'right' });
+
+    /* indicadores */
+    var st = stats(recs), y = 41, bw = (CW - 3 * 4) / 4;
+    [['Cadastros', st.n], ['Dias de férias', st.dias], ['Aprovadas', st.ap], ['Pendentes', st.pe]].forEach(function (k, i) {
+      var x = M + i * (bw + 4);
+      fill([255, 255, 255]); draw(LINE); doc.setLineWidth(0.3); doc.roundedRect(x, y, bw, 18, 2, 2, 'FD');
+      font(17, 'bold', k[0] === 'Pendentes' && k[1] ? [150, 95, 0] : TEAL); doc.text(String(k[1]), x + 4, y + 9.5);
+      font(8, 'normal', MUT); doc.text(k[0], x + 4, y + 14.8);
+    });
+    y += 28;
+
+    /* resumo por setor */
+    var porSetor = {};
+    recs.forEach(function (r) { var k = r.setor || 'Sem setor'; (porSetor[k] = porSetor[k] || { n: 0, d: 0 }); porSetor[k].n++; porSetor[k].d += span(r); });
+    var nomesSetor = Object.keys(porSetor).sort(function (a, b) { return a.localeCompare(b, 'pt-BR'); });
+    if (nomesSetor.length > 1) {
+      font(11, 'bold', INK); doc.text('Resumo por setor', M, y); y += 3.5;
+      fill(ZEB); doc.rect(M, y, CW, 7, 'F');
+      font(8, 'bold', MUT); doc.text('SETOR', M + 3, y + 4.7); doc.text('CADASTROS', M + 112, y + 4.7, { align: 'right' }); doc.text('DIAS DE FÉRIAS', W - M - 3, y + 4.7, { align: 'right' });
+      y += 7;
+      nomesSetor.forEach(function (s) {
+        if (y > H - 40) { doc.addPage(); y = 20; }
+        font(9.5, 'normal', INK); doc.text(fit(s, 90), M + 3, y + 5);
+        doc.text(String(porSetor[s].n), M + 112, y + 5, { align: 'right' });
+        doc.text(String(porSetor[s].d), W - M - 3, y + 5, { align: 'right' });
+        draw(LINE); doc.setLineWidth(0.2); doc.line(M, y + 7, W - M, y + 7);
+        y += 7;
+      });
+      y += 9;
+    }
+
+    /* tabela principal */
+    var cols = [['COLABORADOR', 50], ['SETOR', 30], ['INÍCIO', 21], ['FIM', 21], ['DIAS', 12], ['RETORNO', 21], ['SITUAÇÃO', 27]];
+    function cabecalhoTabela() {
+      fill(TEAL); doc.rect(M, y, CW, 8, 'F');
+      font(7.8, 'bold', [255, 255, 255]);
+      var x = M;
+      cols.forEach(function (c, i) { doc.text(c[0], i === 4 ? x + c[1] - 2 : x + 2.5, y + 5.3, i === 4 ? { align: 'right' } : {}); x += c[1]; });
+      y += 8;
+    }
+    if (y > H - 50) { doc.addPage(); y = 20; }
+    font(11, 'bold', INK); doc.text('Cadastros', M, y); y += 3.5;
+    cabecalhoTabela();
+    var RH = 11.5;
+    recs.forEach(function (r, i) {
+      if (y + RH > H - 22) { doc.addPage(); y = 20; cabecalhoTabela(); }
+      if (i % 2 === 1) { fill(ZEB); doc.rect(M, y, CW, RH, 'F'); }
+      var x = M, s = situacao(r);
+      font(9.5, 'bold', INK); doc.text(fit(r.nome, cols[0][1] - 4), x + 2.5, y + 4.9);
+      font(7.5, 'normal', MUT); doc.text(r.matricula ? 'Matrícula ' + r.matricula : 'Sem matrícula', x + 2.5, y + 9);
+      x += cols[0][1];
+      font(9, 'normal', INK); doc.text(fit(r.setor || 'Sem setor', cols[1][1] - 4), x + 2.5, y + 6.9); x += cols[1][1];
+      doc.text(fmt(r.inicio), x + 2.5, y + 6.9); x += cols[2][1];
+      doc.text(fmt(r.fim), x + 2.5, y + 6.9); x += cols[3][1];
+      doc.text(String(span(r)), x + cols[4][1] - 2, y + 6.9, { align: 'right' }); x += cols[4][1];
+      doc.text(fmt(addDays(r.fim, 1)), x + 2.5, y + 6.9); x += cols[5][1];
+      font(7.8, 'bold', BADGE[s.k][1]);
+      var bwid = doc.getTextWidth(s.t) + 5;
+      fill(BADGE[s.k][0]); doc.roundedRect(x + 1.5, y + 3.2, bwid, 5.2, 2.4, 2.4, 'F');
+      font(7.8, 'bold', BADGE[s.k][1]); doc.text(s.t, x + 4, y + 6.9);
+      draw(LINE); doc.setLineWidth(0.15); doc.line(M, y + RH, W - M, y + RH);
+      y += RH;
+    });
+
+    /* rodapé em todas as páginas */
+    var total = doc.getNumberOfPages();
+    for (var p = 1; p <= total; p++) {
+      doc.setPage(p);
+      draw(LINE); doc.setLineWidth(0.3); doc.line(M, H - 14, W - M, H - 14);
+      font(8, 'normal', MUT);
+      doc.text('Gestão de Férias  |  Relatório de férias dos colaboradores', M, H - 9);
+      doc.text('Página ' + p + ' de ' + total, W - M, H - 9, { align: 'right' });
+    }
+    return doc;
+  }
+
+  function nomeArquivo() {
+    return 'Relatorio-Ferias-' + (exp.escopo === 'periodo' ? exp.de + '_a_' + exp.ate : todayISO()) + '.pdf';
+  }
+
+  function entregarPdf(doc, nome) {
+    var Cap = window.Capacitor;
+    if (Cap && Cap.isNativePlatform && Cap.isNativePlatform() && Cap.Plugins && Cap.Plugins.Filesystem && Cap.Plugins.Share) {
+      var b64 = doc.output('datauristring').split(',')[1];
+      return Cap.Plugins.Filesystem.writeFile({ path: nome, data: b64, directory: 'CACHE' }).then(function (res) {
+        return Cap.Plugins.Share.share({ title: 'Relatório de férias', url: res.uri, dialogTitle: 'Salvar ou enviar o PDF' });
+      });
+    }
+    doc.save(nome);
+    return Promise.resolve();
+  }
+
+  function gerarPdf() {
+    var recs = expRecords();
+    if (!recs.length) return;
+    var J = window.jspdf && window.jspdf.jsPDF;
+    if (!J) { toast('Não foi possível carregar o gerador de PDF.'); return; }
+    var btn = $('#btn-gerar');
+    if (btn) { btn.disabled = true; btn.textContent = 'Gerando PDF...'; }
+    setTimeout(function () {
+      var fim = function () { var b = $('#btn-gerar'); if (b) { b.disabled = false; b.textContent = 'Gerar PDF (A4, retrato)'; } };
+      try {
+        var doc = buildPdf(J, recs, expInfo());
+        entregarPdf(doc, nomeArquivo()).then(function () { toast(DEMO ? 'PDF gerado (download bloqueado na simulação)' : 'PDF pronto'); fim(); }, function (err) {
+          var m = String(err && (err.message || err)).toLowerCase();
+          if (m.indexOf('cancel') === -1) toast('Não foi possível abrir o PDF.');
+          fim();
+        });
+      } catch (e) { toast('Erro ao gerar o PDF.'); fim(); }
+    }, 30);
+  }
+
+  window.GestaoFerias = { buildPdf: buildPdf };
+
+  function renderScreen() {
+    var main = $('#main');
+    document.querySelectorAll('nav button').forEach(function (b) {
+      if (b.dataset.tab === tab) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    });
+    $('#top-title').textContent = TITULOS[tab];
+    var n = new Date();
+    $('#top-small').textContent = tab === 'resumo' ? cap(DIAS[n.getDay()]) + ', ' + n.getDate() + ' de ' + MESES[n.getMonth()] : 'Gestão de férias';
+    if (tab === 'resumo') main.innerHTML = viewResumo();
+    else if (tab === 'exp') main.innerHTML = viewExport();
+    else main.innerHTML = '<section class="screen">' + filtersHTML() + '<div id="results" class="screen"></div></section>';
+    renderResults();
+  }
+
+  function go(t) { tab = t; renderScreen(); $('#main').scrollTop = 0; }
+
+  /* ---------- formulário ---------- */
+  function setErr(id, msg) { var e = $('#e-' + id); if (e) e.textContent = msg || ''; var f = $('#f-' + (id === 'nome' ? 'nome' : id)); if (f) f.classList.toggle('bad', !!msg); }
+
+  function updateCalc() {
+    var a = $('#f-ini').value, b = $('#f-fim').value, calc = $('#calc'), hints = [];
+    if (!a || !b || b < a) { calc.hidden = true; $('#hints').innerHTML = ''; return; }
+    var dias = num(b) - num(a) + 1;
+    var ret = addDays(b, 1);
+    calc.hidden = false;
+    calc.innerHTML = '<span class="num">' + plural(dias, 'dia corrido', 'dias corridos') + '</span><small>retorno em ' + fmt(ret) + '</small>';
+    if (dias > 30) hints.push('Passa de 30 dias corridos, que é o limite de férias por período aquisitivo.');
+    if (dias < 5) hints.push('Com menos de 5 dias, o período não atende ao mínimo do fracionamento previsto na CLT (um período de pelo menos 14 dias e os demais de pelo menos 5).');
+    var setor = norm($('#f-setor').value.trim());
+    if (setor) {
+      var conf = data.filter(function (r) { return r.id !== editingId && norm(r.setor || '') === setor && r.inicio <= b && r.fim >= a; });
+      if (conf.length) hints.push('Mesmo setor no período: ' + conf.slice(0, 3).map(function (r) { return esc(r.nome) + ' (' + fmtS(r.inicio) + ' a ' + fmtS(r.fim) + ')'; }).join(', ') + (conf.length > 3 ? ' e mais ' + (conf.length - 3) : '') + '.');
+    }
+    $('#hints').innerHTML = hints.map(function (h) { return '<div class="hint">' + h + '</div>'; }).join('');
+  }
+
+  function openForm(id) {
+    editingId = id || null;
+    var r = id ? data.find(function (x) { return x.id === id; }) : null;
+    $('#sheet-title').textContent = r ? 'Editar cadastro' : 'Novo cadastro';
+    $('#f-nome').value = r ? r.nome : '';
+    $('#f-mat').value = r ? (r.matricula || '') : '';
+    $('#f-setor').value = r ? (r.setor || '') : '';
+    $('#f-ini').value = r ? r.inicio : '';
+    $('#f-fim').value = r ? r.fim : '';
+    $('#f-obs').value = r ? (r.obs || '') : '';
+    document.querySelector('input[name="status"][value="' + (r ? r.status : 'aprovada') + '"]').checked = true;
+    ['nome', 'ini', 'fim'].forEach(function (k) { setErr(k, ''); });
+    var del = $('#btn-del'); del.hidden = !r; del.classList.remove('sure'); del.textContent = 'Excluir cadastro';
+    var setores = Array.from(new Set(data.map(function (x) { return x.setor; }).filter(Boolean)));
+    $('#setores').innerHTML = setores.map(function (s) { return '<option value="' + esc(s) + '">'; }).join('');
+    updateCalc();
+    $('#sheet').hidden = false;
+    $('#form').scrollTop = 0;
+    try { history.pushState({ f: 1 }, ''); } catch (e) {}
+    if (!r) setTimeout(function () { try { $('#f-nome').focus(); } catch (e) {} }, 60);
+  }
+
+  function closeForm(fromPop) {
+    if ($('#sheet').hidden) return;
+    $('#sheet').hidden = true;
+    if (!fromPop) { try { if (history.state && history.state.f) history.back(); } catch (e) {} }
+  }
+
+  var toastTimer;
+  function toast(msg) {
+    var t = $('#toast'); t.textContent = msg; t.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.hidden = true; }, 2200);
+  }
+
+  function submitForm(ev) {
+    ev.preventDefault();
+    var nome = $('#f-nome').value.trim(), a = $('#f-ini').value, b = $('#f-fim').value, ok = true;
+    setErr('nome', ''); setErr('ini', ''); setErr('fim', '');
+    if (!nome) { setErr('nome', 'Informe o nome do colaborador.'); ok = false; }
+    if (!a) { setErr('ini', 'Informe a data de início.'); ok = false; }
+    if (!b) { setErr('fim', 'Informe a data final.'); ok = false; }
+    else if (a && b < a) { setErr('fim', 'A data final não pode ser anterior ao início.'); ok = false; }
+    if (!ok) { var bad = document.querySelector('.field.bad'); if (bad) bad.focus(); return; }
+    var rec = {
+      id: editingId || uid(), nome: nome, matricula: $('#f-mat').value.trim(), setor: $('#f-setor').value.trim(),
+      inicio: a, fim: b, status: document.querySelector('input[name="status"]:checked').value, obs: $('#f-obs').value.trim()
+    };
+    var i = data.findIndex(function (x) { return x.id === rec.id; });
+    if (i >= 0) data[i] = rec; else data.push(rec);
+    save();
+    closeForm();
+    toast(i >= 0 ? 'Alterações salvas' : 'Cadastro salvo');
+    renderScreen();
+  }
+
+  var delTimer;
+  function askDelete() {
+    var b = $('#btn-del');
+    if (!b.classList.contains('sure')) {
+      b.classList.add('sure'); b.textContent = 'Toque de novo para confirmar';
+      clearTimeout(delTimer); delTimer = setTimeout(function () { b.classList.remove('sure'); b.textContent = 'Excluir cadastro'; }, 4000);
+      return;
+    }
+    data = data.filter(function (r) { return r.id !== editingId; });
+    save(); closeForm(); toast('Cadastro excluído'); renderScreen();
+  }
+
+  /* ---------- eventos ---------- */
+  var touchX = null;
+  var main = $('#main');
+  main.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-edit],[data-approve],[data-day],[data-nav],[data-today],[data-clear],[data-gerar]');
+    if (!t) return;
+    if (t.dataset.gerar) return gerarPdf();
+    if (t.dataset.edit) return openForm(t.dataset.edit);
+    if (t.dataset.approve) {
+      var r = data.find(function (x) { return x.id === t.dataset.approve; });
+      if (r) { r.status = 'aprovada'; save(); toast('Férias de ' + r.nome.split(' ')[0] + ' aprovadas'); renderScreen(); }
+      return;
+    }
+    if (t.dataset.day) { selected = selected === t.dataset.day ? null : t.dataset.day; return resultsCal(); }
+    if (t.dataset.nav) {
+      view.m += Number(t.dataset.nav);
+      if (view.m < 0) { view.m = 11; view.y--; } else if (view.m > 11) { view.m = 0; view.y++; }
+      selected = null; return resultsCal();
+    }
+    if (t.dataset.today) { var n = new Date(); view = { y: n.getFullYear(), m: n.getMonth() }; selected = todayISO(); return resultsCal(); }
+    if (t.dataset.clear) { filter = { q: '', setor: '', status: '' }; renderScreen(); }
+  });
+  main.addEventListener('input', function (e) { if (e.target.id === 'q') { filter.q = e.target.value; renderResults(); } });
+  main.addEventListener('change', function (e) {
+    if (e.target.id === 'fsetor') { filter.setor = e.target.value; renderResults(); }
+    if (e.target.id === 'fstatus') { filter.status = e.target.value; renderResults(); }
+    if (e.target.name === 'escopo') { exp.escopo = e.target.value; $('#xper').hidden = exp.escopo !== 'periodo'; renderExpRes(); }
+    if (e.target.id === 'xde') { exp.de = e.target.value; renderExpRes(); }
+    if (e.target.id === 'xate') { exp.ate = e.target.value; renderExpRes(); }
+    if (e.target.id === 'xsetor') { exp.setor = e.target.value; renderExpRes(); }
+  });
+  main.addEventListener('touchstart', function (e) { touchX = e.target.closest('.cal') ? e.touches[0].clientX : null; }, { passive: true });
+  main.addEventListener('touchend', function (e) {
+    if (touchX === null) return;
+    var dx = e.changedTouches[0].clientX - touchX; touchX = null;
+    if (Math.abs(dx) > 70) { var b = document.querySelector('[data-nav="' + (dx < 0 ? 1 : -1) + '"]'); if (b) b.click(); }
+  }, { passive: true });
+
+  document.querySelectorAll('nav button').forEach(function (b) { b.addEventListener('click', function () { go(b.dataset.tab); }); });
+  $('#fab').addEventListener('click', function () { openForm(null); });
+  $('#sheet-close').addEventListener('click', function () { closeForm(); });
+  $('#form').addEventListener('submit', submitForm);
+  $('#btn-del').addEventListener('click', askDelete);
+  ['#f-ini', '#f-fim', '#f-setor'].forEach(function (s) { $(s).addEventListener('input', function () { setErr('ini', ''); setErr('fim', ''); updateCalc(); }); });
+  $('#f-nome').addEventListener('input', function () { setErr('nome', ''); });
+  window.addEventListener('popstate', function () { closeForm(true); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeForm(); });
+
+  /* ---------- início ---------- */
+  var saved = load();
+  data = saved || (DEMO ? seed() : []);
+  if (DEMO) {
+    $('#demo').hidden = false;
+    $('#demo-reset').addEventListener('click', function () { data = seed(); save(); filter = { q: '', setor: '', status: '' }; renderScreen(); toast('Exemplos restaurados'); });
+  }
+  renderScreen();
+})();
+</script>

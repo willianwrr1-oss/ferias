@@ -1,0 +1,11 @@
+{
+  "appId": "br.com.willian.ferias",
+  "appName": "Gestão de Férias",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "backgroundColor": "#F2F6F6"
+  }
+}
