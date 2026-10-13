@@ -144,8 +144,8 @@ section.screen{display:flex;flex-direction:column;gap:18px}
 .legend em{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--brand);margin-right:6px;vertical-align:-1px}
 
 /* navegação inferior e botão + */
-nav{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
-nav button{border:0;background:transparent;border-radius:14px;padding:8px 2px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12.5px;color:var(--muted);min-height:56px}
+nav{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,1fr);background:var(--surface);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
+nav button{border:0;background:transparent;border-radius:14px;padding:8px 0;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;color:var(--muted);min-height:56px}
 nav button svg{width:24px;height:24px}
 nav button[aria-current="page"]{color:var(--brand);font-weight:700;background:var(--brand-soft)}
 .fab{position:absolute;right:16px;bottom:calc(84px + env(safe-area-inset-bottom,0px));min-width:56px;height:56px;border-radius:18px;border:0;background:var(--sun);color:#2B1B00;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 18px;box-shadow:0 6px 18px rgba(0,0,0,.25);font-size:16px}
@@ -198,6 +198,40 @@ textarea.field{min-height:84px;resize:vertical}
 .wk{align-self:center;justify-self:center;font-size:12px;font-variant-numeric:tabular-nums;color:var(--muted);width:24px;text-align:center;padding:3px 0;border-radius:8px;background:color-mix(in srgb,var(--line) 45%,transparent)}
 .dow.wk{background:none;font-size:11px;font-weight:700;width:auto}
 .wk.now{background:var(--brand);color:var(--brand-ink);font-weight:700}
+
+/* opções */
+.opt-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.opt-card h2{font-size:18px}
+.opt-card h3{font-size:15px;font-family:var(--font-display)}
+.opt-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.sw{position:relative;display:inline-block;width:52px;height:30px;flex:none}
+.sw input{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;cursor:pointer;z-index:1}
+.sw span{position:absolute;inset:0;border-radius:99px;background:var(--line);transition:background .15s}
+.sw span::after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .15s}
+.sw input:checked+span{background:var(--brand)}
+.sw input:checked+span::after{transform:translateX(22px)}
+.sw input:focus-visible+span{outline:3px solid var(--brand);outline-offset:2px}
+.sw input:disabled{cursor:default}
+.sw input:disabled+span{opacity:.45}
+@media (prefers-reduced-motion:reduce){.sw span,.sw span::after{transition:none}}
+.kv1{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:12px;background:var(--bg)}
+.kv1 .k{font-size:12.5px;color:var(--muted)}
+.kv1 .v{font-weight:700;overflow-wrap:anywhere}
+.bk-status{margin:0;font-size:14px;color:var(--muted)}
+.bk-status.err{color:var(--alert);font-weight:700}
+.sep{height:1px;background:var(--line);margin:2px 0}
+.vh{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}
+.btn-file{display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer}
+.vh:focus-visible+*{outline:3px solid var(--brand)}
+.imp-prev{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:12px;background:var(--brand-soft)}
+.imp-prev b{overflow-wrap:anywhere}
+.imp-prev span{font-size:14px;color:var(--muted)}
+.kv{margin:0;display:flex;flex-direction:column}
+.kv div{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
+.kv div:last-child{border-bottom:0}
+.kv dt{color:var(--muted);font-size:14px}
+.kv dd{margin:0;font-weight:700;text-align:right;overflow-wrap:anywhere;min-width:0}
+.news{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:14.5px}
 </style>
 
 </head>
@@ -240,6 +274,10 @@ textarea.field{min-height:84px;resize:vertical}
     <button type="button" data-tab="exp">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3.5H7.5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V8z"/><path d="M14 3.5V8h4.5M12 11.5v5.2M9.8 14.7l2.2 2.2 2.2-2.2"/></svg>
       Exportar
+    </button>
+    <button type="button" data-tab="opt">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 14.6a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3h0a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5h0a1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8v0a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg>
+      Opções
     </button>
   </nav>
 
@@ -302,7 +340,15 @@ textarea.field{min-height:84px;resize:vertical}
   var MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
   var DIAS = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
   var DOW = ['D','S','T','Q','Q','S','S'];
-  var TITULOS = { resumo: 'Resumo', cad: 'Cadastros', cal: 'Calendário', exp: 'Exportar' };
+  var TITULOS = { resumo: 'Resumo', cad: 'Cadastros', cal: 'Calendário', exp: 'Exportar', opt: 'Opções' };
+  var VERSION = '1.1.0', BUILD_DATE = '13/10/2026';
+  var DEV = { nome: 'Willian', contato: 'willian.wrr1@gmail.com' };
+  var NOVIDADES = [
+    'Backup automático em uma pasta do Android, com frequência à escolha',
+    'Importação do banco de dados (substituir ou mesclar)',
+    'Relatório em PDF e coluna de semanas no calendário'
+  ];
+  var KEY_PREV = 'gestao-ferias.antes-importacao';
   var STATUS_FILTRO = [['', 'Todas as situações'], ['pend', 'Pendente'], ['prog', 'Programada'], ['now', 'Em férias'], ['done', 'Concluída']];
 
   function $(s) { return document.querySelector(s); }
@@ -338,7 +384,7 @@ textarea.field{min-height:84px;resize:vertical}
   })();
 
   function load() { try { var s = localStorage.getItem(KEY); if (s) return JSON.parse(s); } catch (e) {} return null; }
-  function save() { try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) {} }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) {} syncNative(); }
 
   function seed() {
     var t = todayISO();
@@ -728,7 +774,256 @@ textarea.field{min-height:84px;resize:vertical}
     }, 30);
   }
 
-  window.GestaoFerias = { buildPdf: buildPdf };
+  /* ---------- opções: backup, importação e sobre ---------- */
+  function mockBackup() {
+    var K = 'gestao-ferias.mock';
+    function base() { return { hasFolder: false, folder: '', enabled: false, hours: 12, lastTime: 0, lastOk: true, lastMsg: '' }; }
+    function get() { try { return Object.assign(base(), JSON.parse(localStorage.getItem(K) || '{}')); } catch (e) { return base(); } }
+    function put(o) { try { localStorage.setItem(K, JSON.stringify(o)); } catch (e) {} return o; }
+    return {
+      status: function () { return Promise.resolve(get()); },
+      pickFolder: function () { var o = get(); o.hasFolder = true; o.folder = 'Armazenamento interno/Documents/Backup Férias (simulado)'; return Promise.resolve(put(o)); },
+      configure: function (a) { var o = get(); o.enabled = !!a.enabled; o.hours = a.hours || 12; return Promise.resolve(put(o)); },
+      syncData: function () { return Promise.resolve(); },
+      backupNow: function () { var o = get(); o.lastTime = Date.now(); o.lastOk = true; o.lastMsg = ''; return Promise.resolve(put(o)); }
+    };
+  }
+
+  var Cap = window.Capacitor;
+  var nativeBk = (Cap && Cap.isNativePlatform && Cap.isNativePlatform() && Cap.Plugins && Cap.Plugins.Backup) || null;
+  var bridge = nativeBk || (DEMO ? mockBackup() : null);
+  var bk = { hasFolder: false, folder: '', enabled: false, hours: 12, lastTime: 0, lastOk: true, lastMsg: '', busy: false };
+  var imp = null;
+  var FREQ = [[6, 'A cada 6 horas'], [12, 'A cada 12 horas'], [24, 'Todos os dias'], [168, 'Toda semana']];
+
+  function backupJSON() {
+    return JSON.stringify({ app: 'gestao-ferias', versao: 1, appVersao: VERSION, exportadoEm: new Date().toISOString(), registros: data }, null, 1);
+  }
+
+  var syncT;
+  function syncNative() {
+    if (!bridge) return;
+    clearTimeout(syncT);
+    syncT = setTimeout(function () { bridge.syncData({ json: backupJSON() }).catch(function () {}); }, 400);
+  }
+
+  function fmtDH(ms) {
+    var d = new Date(ms);
+    return pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + d.getFullYear() + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+  }
+
+  function renderOpt() {
+    if (tab !== 'opt') return;
+    var m = $('#main'), y = m.scrollTop;
+    m.innerHTML = viewOpcoes();
+    m.scrollTop = y;
+  }
+
+  function refreshBk() {
+    if (!bridge) return;
+    bridge.status().then(function (s) { bk = Object.assign(bk, s); renderOpt(); }).catch(function () {});
+  }
+
+  function catchUp() {
+    if (!bridge) return;
+    bridge.status().then(function (s) {
+      bk = Object.assign(bk, s);
+      renderOpt();
+      if (s.enabled && s.hasFolder && Date.now() - s.lastTime > s.hours * 3600000 + 600000) {
+        bridge.backupNow({ json: backupJSON() }).then(function (s2) { bk = Object.assign(bk, s2); renderOpt(); }).catch(function () {});
+      }
+    }).catch(function () {});
+  }
+
+  function bkPick() {
+    if (!bridge) return;
+    bridge.pickFolder().then(function (s) {
+      bk = Object.assign(bk, s);
+      toast('Pasta escolhida');
+      renderOpt();
+    }).catch(function (e) {
+      if (String(e && e.message || e) !== 'cancelled') toast('Não foi possível usar essa pasta.');
+    });
+  }
+
+  function bkNow(silent) {
+    if (!bridge) return Promise.resolve();
+    if (!bk.hasFolder) { toast('Escolha a pasta primeiro'); return Promise.resolve(); }
+    bk.busy = true; renderOpt();
+    return bridge.backupNow({ json: backupJSON() }).then(function (s) {
+      bk = Object.assign(bk, s, { busy: false }); renderOpt();
+      if (!silent) toast(bk.lastOk ? 'Backup salvo na pasta' : 'Falha no backup: ' + bk.lastMsg);
+    }, function () { bk.busy = false; renderOpt(); toast('Falha ao fazer o backup'); });
+  }
+
+  function bkToggle(on) {
+    if (!bridge) return;
+    if (on && !bk.hasFolder) { toast('Escolha a pasta primeiro'); renderOpt(); return; }
+    bridge.configure({ enabled: on, hours: bk.hours }).then(function (s) {
+      bk = Object.assign(bk, s);
+      renderOpt();
+      toast(on ? 'Backup automático ligado' : 'Backup automático desligado');
+      if (on) return bkNow(true);
+    }).catch(function () { toast('Não foi possível alterar o backup automático.'); renderOpt(); });
+  }
+
+  function bkFreq(h) {
+    if (!bridge) return;
+    bk.hours = h;
+    bridge.configure({ enabled: bk.enabled, hours: h }).then(function (s) { bk = Object.assign(bk, s); renderOpt(); toast('Frequência atualizada'); }).catch(function () {});
+  }
+
+  function entregarTexto(nome, texto) {
+    var C = window.Capacitor;
+    if (C && C.isNativePlatform && C.isNativePlatform() && C.Plugins && C.Plugins.Filesystem && C.Plugins.Share) {
+      return C.Plugins.Filesystem.writeFile({ path: nome, data: texto, directory: 'CACHE', encoding: 'utf8' }).then(function (res) {
+        return C.Plugins.Share.share({ title: 'Backup de férias', url: res.uri, dialogTitle: 'Salvar ou enviar o backup' });
+      });
+    }
+    var blob = new Blob([texto], { type: 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = nome;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+    return Promise.resolve();
+  }
+
+  function compartilharCopia() {
+    entregarTexto('Backup-Ferias-' + todayISO() + '.json', backupJSON()).then(function () {
+      toast(DEMO ? 'Cópia gerada (download bloqueado na simulação)' : 'Cópia pronta');
+    }, function (err) {
+      if (String(err && (err.message || err)).toLowerCase().indexOf('cancel') === -1) toast('Não foi possível gerar a cópia.');
+    });
+  }
+
+  function validISO(s) {
+    if (typeof s !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+    var p = parts(s), d = new Date(Date.UTC(p[0], p[1] - 1, p[2]));
+    return d.getUTCFullYear() === p[0] && d.getUTCMonth() === p[1] - 1 && d.getUTCDate() === p[2];
+  }
+
+  function impParse(obj, nome) {
+    var lista = Array.isArray(obj) ? obj : (obj && Array.isArray(obj.registros) ? obj.registros : null);
+    if (!lista) throw new Error('formato');
+    var ok = [], skip = 0, ids = {};
+    lista.forEach(function (r) {
+      if (!r || typeof r !== 'object' || !String(r.nome || '').trim() || !validISO(r.inicio) || !validISO(r.fim) || r.fim < r.inicio) { skip++; return; }
+      var id = r.id ? String(r.id).slice(0, 40) : uid();
+      if (ids[id]) id = uid();
+      ids[id] = 1;
+      ok.push({
+        id: id, nome: String(r.nome).trim().slice(0, 80), matricula: String(r.matricula || '').slice(0, 20),
+        setor: String(r.setor || '').slice(0, 40), inicio: r.inicio, fim: r.fim,
+        status: r.status === 'pendente' ? 'pendente' : 'aprovada', obs: String(r.obs || '').slice(0, 300)
+      });
+    });
+    if (!ok.length) throw new Error('vazio');
+    return { registros: ok, skipped: skip, geradoEm: (obj && obj.exportadoEm) || '', arquivo: nome || '', modo: 'substituir' };
+  }
+
+  function impRead(file) {
+    var rd = new FileReader();
+    rd.onload = function () {
+      try { imp = impParse(JSON.parse(String(rd.result)), file.name); }
+      catch (e) { imp = null; toast('Arquivo inválido. Escolha um backup .json deste app.'); }
+      renderOpt();
+    };
+    rd.onerror = function () { toast('Não foi possível ler o arquivo.'); };
+    rd.readAsText(file);
+  }
+
+  function impApply() {
+    if (!imp) return;
+    try { localStorage.setItem(KEY_PREV, JSON.stringify({ em: new Date().toISOString(), registros: data })); } catch (e) {}
+    if (imp.modo === 'mesclar') {
+      var chave = function (r) { return norm(r.nome) + '|' + r.inicio + '|' + r.fim; };
+      var ids = {}, chaves = {};
+      data.forEach(function (r) { ids[r.id] = 1; chaves[chave(r)] = 1; });
+      imp.registros.forEach(function (r) {
+        if (ids[r.id]) { data = data.map(function (x) { return x.id === r.id ? r : x; }); return; }
+        if (chaves[chave(r)]) return;
+        data.push(r); ids[r.id] = 1; chaves[chave(r)] = 1;
+      });
+    } else {
+      data = imp.registros.slice();
+    }
+    save();
+    var n = imp.registros.length;
+    imp = null;
+    filter = { q: '', setor: '', status: '' };
+    toast('Importação concluída: ' + plural(n, 'cadastro', 'cadastros') + ' no arquivo');
+    renderScreen();
+  }
+
+  function impUndo() {
+    try {
+      var prev = JSON.parse(localStorage.getItem(KEY_PREV) || 'null');
+      if (!prev || !Array.isArray(prev.registros)) return;
+      data = prev.registros; localStorage.removeItem(KEY_PREV);
+      save(); toast('Importação desfeita'); renderScreen();
+    } catch (e) { toast('Não foi possível desfazer.'); }
+  }
+
+  function temAnterior() { try { return !!localStorage.getItem(KEY_PREV); } catch (e) { return false; } }
+
+  function viewOpcoes() {
+    var h = '<section class="screen">';
+
+    /* backup automático */
+    h += '<div class="opt-card"><div class="opt-head"><h2>Backup automático</h2>' +
+      '<label class="sw" aria-label="Backup automático"><input type="checkbox" id="bk-on" role="switch"' + (bk.enabled ? ' checked' : '') + (bridge ? '' : ' disabled') + '><span></span></label></div>';
+    if (!bridge) {
+      h += '<p class="meta" style="margin:0">Disponível só no aplicativo Android instalado. Aqui você ainda pode importar e copiar o banco de dados.</p>';
+    } else {
+      h += '<p class="meta" style="margin:0">Grava um arquivo de backup na pasta escolhida, na frequência abaixo, mesmo com o app fechado. Mantém as 10 cópias mais recentes.</p>' +
+        '<div class="kv1"><span class="k">Pasta de destino</span><span class="v">' + (bk.hasFolder ? esc(bk.folder) : 'Nenhuma pasta escolhida') + '</span></div>' +
+        '<button type="button" class="btn btn-soft" data-bk-pick="1">' + (bk.hasFolder ? 'Trocar pasta' : 'Escolher pasta') + '</button>' +
+        '<label class="lb" for="bk-freq">Frequência<select class="field" id="bk-freq">' +
+        FREQ.map(function (f) { return '<option value="' + f[0] + '"' + (f[0] === bk.hours ? ' selected' : '') + '>' + f[1] + '</option>'; }).join('') + '</select></label>' +
+        '<div class="hint" style="background:var(--brand-soft);color:var(--ink)">Dica: crie uma pasta nova (por exemplo, Documentos &gt; Backup Férias). O Android não deixa escolher a raiz do armazenamento nem a pasta Download.</div>' +
+        '<p class="bk-status ' + (bk.lastTime && !bk.lastOk ? 'err' : '') + '">' +
+        (bk.lastTime ? 'Última cópia: ' + fmtDH(bk.lastTime) + (bk.lastOk ? ' (concluída)' : ' (falhou: ' + esc(bk.lastMsg) + ')') : 'Nenhuma cópia feita ainda.') + '</p>' +
+        '<button type="button" class="btn btn-primary" data-bk-now="1"' + (bk.busy ? ' disabled' : '') + '>' + (bk.busy ? 'Salvando...' : 'Fazer backup agora') + '</button>';
+    }
+    h += '</div>';
+
+    /* cópia e importação */
+    h += '<div class="opt-card"><h2>Banco de dados</h2>' +
+      '<p class="meta" style="margin:0">' + plural(data.length, 'cadastro guardado', 'cadastros guardados') + ' neste aparelho.</p>' +
+      '<button type="button" class="btn btn-soft" data-share-json="1">Gerar cópia do banco (.json)</button>' +
+      '<div class="sep"></div><h3>Importar banco de dados</h3>';
+    if (!imp) {
+      h += '<p class="meta" style="margin:0">Escolha um arquivo de backup (.json) gerado por este app.</p>' +
+        '<label class="btn btn-primary btn-file" for="imp-file">Escolher arquivo de backup</label><input type="file" id="imp-file" class="vh">';
+    } else {
+      h += '<div class="imp-prev"><b>' + esc(imp.arquivo || 'Arquivo de backup') + '</b><span>' + plural(imp.registros.length, 'cadastro válido', 'cadastros válidos') +
+        (imp.skipped ? ', ' + plural(imp.skipped, 'ignorado por dados inválidos', 'ignorados por dados inválidos') : '') +
+        (imp.geradoEm ? '. Gerado em ' + fmtDH(Date.parse(imp.geradoEm) || Date.now()) : '') + '.</span></div>' +
+        '<div class="lb" role="radiogroup" aria-label="Como importar">Como importar<div class="seg">' +
+        '<label><input type="radio" name="impmode" value="substituir"' + (imp.modo === 'substituir' ? ' checked' : '') + '><span>Substituir tudo</span></label>' +
+        '<label><input type="radio" name="impmode" value="mesclar"' + (imp.modo === 'mesclar' ? ' checked' : '') + '><span>Mesclar</span></label></div></div>' +
+        '<p class="meta" style="margin:0">' + (imp.modo === 'substituir'
+          ? 'Os ' + plural(data.length, 'cadastro atual', 'cadastros atuais') + ' serão trocados pelos do arquivo. Dá para desfazer logo depois.'
+          : 'Os cadastros do arquivo são somados aos atuais. Repetidos (mesmo colaborador e período) não são duplicados.') + '</p>' +
+        '<div class="actions"><button type="button" class="btn btn-primary" data-imp-go="1">Importar</button><button type="button" class="btn btn-ghost" data-imp-cancel="1">Cancelar</button></div>';
+    }
+    if (temAnterior()) h += '<button type="button" class="btn btn-ghost btn-sm" data-imp-undo="1">Desfazer última importação</button>';
+    h += '</div>';
+
+    /* sobre */
+    h += '<div class="opt-card"><h2>Sobre o aplicativo</h2><dl class="kv">' +
+      '<div><dt>Aplicativo</dt><dd>Gestão de Férias</dd></div>' +
+      '<div><dt>Versão atual</dt><dd class="num">' + esc(VERSION) + '</dd></div>' +
+      '<div><dt>Última atualização</dt><dd class="num">' + esc(BUILD_DATE) + '</dd></div>' +
+      '<div><dt>Compatível com</dt><dd>Android 13 ou superior</dd></div>' +
+      '<div><dt>Desenvolvedor</dt><dd>' + esc(DEV.nome) + '</dd></div>' +
+      '<div><dt>Contato</dt><dd>' + esc(DEV.contato) + '</dd></div></dl>' +
+      '<h3>Novidades desta versão</h3><ul class="news">' + NOVIDADES.map(function (n) { return '<li>' + esc(n) + '</li>'; }).join('') + '</ul></div>';
+
+    return h + '</section>';
+  }
+
+  window.GestaoFerias = { buildPdf: buildPdf, impParse: impParse };
 
   function renderScreen() {
     var main = $('#main');
@@ -740,11 +1035,12 @@ textarea.field{min-height:84px;resize:vertical}
     $('#top-small').textContent = tab === 'resumo' ? cap(DIAS[n.getDay()]) + ', ' + n.getDate() + ' de ' + MESES[n.getMonth()] : 'Gestão de férias';
     if (tab === 'resumo') main.innerHTML = viewResumo();
     else if (tab === 'exp') main.innerHTML = viewExport();
+    else if (tab === 'opt') main.innerHTML = viewOpcoes();
     else main.innerHTML = '<section class="screen">' + filtersHTML() + '<div id="results" class="screen"></div></section>';
     renderResults();
   }
 
-  function go(t) { tab = t; renderScreen(); $('#main').scrollTop = 0; }
+  function go(t) { tab = t; renderScreen(); $('#main').scrollTop = 0; if (t === 'opt') refreshBk(); }
 
   /* ---------- formulário ---------- */
   function setErr(id, msg) { var e = $('#e-' + id); if (e) e.textContent = msg || ''; var f = $('#f-' + (id === 'nome' ? 'nome' : id)); if (f) f.classList.toggle('bad', !!msg); }
@@ -837,9 +1133,15 @@ textarea.field{min-height:84px;resize:vertical}
   var touchX = null;
   var main = $('#main');
   main.addEventListener('click', function (e) {
-    var t = e.target.closest('[data-edit],[data-approve],[data-day],[data-nav],[data-today],[data-clear],[data-gerar]');
+    var t = e.target.closest('[data-edit],[data-approve],[data-day],[data-nav],[data-today],[data-clear],[data-gerar],[data-bk-pick],[data-bk-now],[data-share-json],[data-imp-go],[data-imp-cancel],[data-imp-undo]');
     if (!t) return;
     if (t.dataset.gerar) return gerarPdf();
+    if (t.dataset.bkPick) return bkPick();
+    if (t.dataset.bkNow) return bkNow(false);
+    if (t.dataset.shareJson) return compartilharCopia();
+    if (t.dataset.impGo) return impApply();
+    if (t.dataset.impCancel) { imp = null; return renderOpt(); }
+    if (t.dataset.impUndo) return impUndo();
     if (t.dataset.edit) return openForm(t.dataset.edit);
     if (t.dataset.approve) {
       var r = data.find(function (x) { return x.id === t.dataset.approve; });
@@ -863,6 +1165,10 @@ textarea.field{min-height:84px;resize:vertical}
     if (e.target.id === 'xde') { exp.de = e.target.value; renderExpRes(); }
     if (e.target.id === 'xate') { exp.ate = e.target.value; renderExpRes(); }
     if (e.target.id === 'xsetor') { exp.setor = e.target.value; renderExpRes(); }
+    if (e.target.id === 'bk-on') bkToggle(e.target.checked);
+    if (e.target.id === 'bk-freq') bkFreq(Number(e.target.value));
+    if (e.target.id === 'imp-file' && e.target.files && e.target.files[0]) impRead(e.target.files[0]);
+    if (e.target.name === 'impmode' && imp) { imp.modo = e.target.value; renderOpt(); }
   });
   main.addEventListener('touchstart', function (e) { touchX = e.target.closest('.cal') ? e.touches[0].clientX : null; }, { passive: true });
   main.addEventListener('touchend', function (e) {
@@ -889,6 +1195,9 @@ textarea.field{min-height:84px;resize:vertical}
     $('#demo-reset').addEventListener('click', function () { data = seed(); save(); filter = { q: '', setor: '', status: '' }; renderScreen(); toast('Exemplos restaurados'); });
   }
   renderScreen();
+  syncNative();
+  catchUp();
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) catchUp(); });
 })();
 </script>
 

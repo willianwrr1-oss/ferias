@@ -137,8 +137,8 @@ section.screen{display:flex;flex-direction:column;gap:18px}
 .legend em{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--brand);margin-right:6px;vertical-align:-1px}
 
 /* navegação inferior e botão + */
-nav{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
-nav button{border:0;background:transparent;border-radius:14px;padding:8px 2px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12.5px;color:var(--muted);min-height:56px}
+nav{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,1fr);background:var(--surface);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
+nav button{border:0;background:transparent;border-radius:14px;padding:8px 0;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;color:var(--muted);min-height:56px}
 nav button svg{width:24px;height:24px}
 nav button[aria-current="page"]{color:var(--brand);font-weight:700;background:var(--brand-soft)}
 .fab{position:absolute;right:16px;bottom:calc(84px + env(safe-area-inset-bottom,0px));min-width:56px;height:56px;border-radius:18px;border:0;background:var(--sun);color:#2B1B00;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 18px;box-shadow:0 6px 18px rgba(0,0,0,.25);font-size:16px}
@@ -191,4 +191,38 @@ textarea.field{min-height:84px;resize:vertical}
 .wk{align-self:center;justify-self:center;font-size:12px;font-variant-numeric:tabular-nums;color:var(--muted);width:24px;text-align:center;padding:3px 0;border-radius:8px;background:color-mix(in srgb,var(--line) 45%,transparent)}
 .dow.wk{background:none;font-size:11px;font-weight:700;width:auto}
 .wk.now{background:var(--brand);color:var(--brand-ink);font-weight:700}
+
+/* opções */
+.opt-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.opt-card h2{font-size:18px}
+.opt-card h3{font-size:15px;font-family:var(--font-display)}
+.opt-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.sw{position:relative;display:inline-block;width:52px;height:30px;flex:none}
+.sw input{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;cursor:pointer;z-index:1}
+.sw span{position:absolute;inset:0;border-radius:99px;background:var(--line);transition:background .15s}
+.sw span::after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .15s}
+.sw input:checked+span{background:var(--brand)}
+.sw input:checked+span::after{transform:translateX(22px)}
+.sw input:focus-visible+span{outline:3px solid var(--brand);outline-offset:2px}
+.sw input:disabled{cursor:default}
+.sw input:disabled+span{opacity:.45}
+@media (prefers-reduced-motion:reduce){.sw span,.sw span::after{transition:none}}
+.kv1{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:12px;background:var(--bg)}
+.kv1 .k{font-size:12.5px;color:var(--muted)}
+.kv1 .v{font-weight:700;overflow-wrap:anywhere}
+.bk-status{margin:0;font-size:14px;color:var(--muted)}
+.bk-status.err{color:var(--alert);font-weight:700}
+.sep{height:1px;background:var(--line);margin:2px 0}
+.vh{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}
+.btn-file{display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer}
+.vh:focus-visible+*{outline:3px solid var(--brand)}
+.imp-prev{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:12px;background:var(--brand-soft)}
+.imp-prev b{overflow-wrap:anywhere}
+.imp-prev span{font-size:14px;color:var(--muted)}
+.kv{margin:0;display:flex;flex-direction:column}
+.kv div{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
+.kv div:last-child{border-bottom:0}
+.kv dt{color:var(--muted);font-size:14px}
+.kv dd{margin:0;font-weight:700;text-align:right;overflow-wrap:anywhere;min-width:0}
+.news{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:14.5px}
 </style>
