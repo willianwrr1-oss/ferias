@@ -158,7 +158,7 @@ nav button[aria-current="page"]{color:var(--brand);font-weight:700;background:va
 .sheet header{display:flex;align-items:center;gap:6px;padding:calc(10px + env(safe-area-inset-top,0px)) 10px 8px;border-bottom:1px solid var(--line);background:var(--surface)}
 .sheet header h2{font-size:19px;flex:1}
 .sheet form{flex:1;overflow-y:auto;padding:16px 16px 28px;display:flex;flex-direction:column;gap:16px}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start}
 .lb{display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:14.5px;min-width:0}
 .lb .opt{font-weight:400;color:var(--muted)}
 textarea.field{min-height:84px;resize:vertical}
@@ -320,10 +320,10 @@ span.pk-t{display:flex;align-items:center}
         <span class="err" id="e-nome"></span>
       </label>
       <div class="row2">
-        <label class="lb" for="f-mat">Matrícula <span class="opt">(opcional)</span>
+        <label class="lb" for="f-mat"><span>Matrícula <span class="opt">(opcional)</span></span>
           <input class="field" id="f-mat" inputmode="numeric" maxlength="20" autocomplete="off">
         </label>
-        <label class="lb" for="f-setor">Setor
+        <label class="lb" for="f-setor"><span>Setor</span>
           <input class="field" id="f-setor" list="setores" maxlength="40" autocomplete="off">
           <datalist id="setores"></datalist>
         </label>
@@ -346,7 +346,7 @@ span.pk-t{display:flex;align-items:center}
           <label><input type="radio" name="status" value="pendente"><span>Pendente</span></label>
         </div>
       </div>
-      <label class="lb" for="f-obs">Observações <span class="opt">(opcional)</span>
+      <label class="lb" for="f-obs"><span>Observações <span class="opt">(opcional)</span></span>
         <textarea class="field" id="f-obs" maxlength="300"></textarea>
       </label>
       <div class="form-actions">
@@ -382,7 +382,7 @@ span.pk-t{display:flex;align-items:center}
   var DIAS = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
   var DOW = ['D','S','T','Q','Q','S','S'];
   var TITULOS = { resumo: 'Resumo', cad: 'Cadastros', cal: 'Calendário', exp: 'Exportar', opt: 'Opções' };
-  var VERSION = '1.1.1', BUILD_DATE = '13/10/2026';
+  var VERSION = '1.1.2', BUILD_DATE = '13/10/2026';
   var DEV = { nome: 'Willian', contato: 'willian.wrr1@gmail.com' };
   var NOVIDADES = [
     'Datas: digite direto no campo (dd/mm/aaaa) ou abra o calendário e toque no mês ou no ano para pular rápido',

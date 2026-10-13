@@ -6,7 +6,7 @@ raiz = pathlib.Path(__file__).resolve().parent
 head = (raiz / "head.html").read_text(encoding="utf-8")
 body = (raiz / "body.html").read_text(encoding="utf-8")
 
-VERSION = "1.1.1"
+VERSION = "1.1.2"
 BUILD_DATE = datetime.date.today().strftime("%d/%m/%Y")
 CDN = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
 
