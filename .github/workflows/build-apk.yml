@@ -38,13 +38,15 @@ jobs:
           cp -r android-overrides/java/. android/app/src/main/java/
           mkdir -p ~/.android
           cp android-overrides/debug.keystore ~/.android/debug.keystore
+          cp android-overrides/debug.keystore android/app/debug.keystore
           VERSION=$(node -p "require('./package.json').version")
           sed -i 's/minSdkVersion = [0-9]*/minSdkVersion = 33/' android/variables.gradle
           VCODE=$(( $(date +%s) / 60 ))
           sed -i "s/versionCode 1/versionCode $VCODE/; s/versionName \"1.0\"/versionName \"$VERSION\"/" android/app/build.gradle
+          sed -i 's|^android {|android {\n    signingConfigs {\n        debug {\n            storeFile file("debug.keystore")\n            storePassword "android"\n            keyAlias "androiddebugkey"\n            keyPassword "android"\n        }\n    }|' android/app/build.gradle
           sed -i 's|^dependencies {|dependencies {\n    implementation "androidx.work:work-runtime:2.9.1"|' android/app/build.gradle
           grep -n "SdkVersion" android/variables.gradle
-          grep -n "versionCode\|versionName\|work-runtime" android/app/build.gradle
+          grep -n "versionCode\|versionName\|work-runtime\|storeFile" android/app/build.gradle
 
       - name: Copiar o app para o projeto Android
         run: npx cap sync android
@@ -65,7 +67,8 @@ jobs:
           CERT=$(keytool -printcert -jarfile Gestao-de-Ferias.apk | grep "SHA256:" | head -1)
           echo "### Dados do APK" >> "$GITHUB_STEP_SUMMARY"
           echo "- $INFO" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Assinatura $CERT" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Assinatura do APK: $CERT" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Assinatura esperada: $(keytool -list -v -keystore android-overrides/debug.keystore -storepass android | grep SHA256: | head -1)" >> "$GITHUB_STEP_SUMMARY"
           echo "$INFO"; echo "$CERT"
 
       - name: Guardar o APK na execução
